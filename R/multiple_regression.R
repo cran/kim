@@ -22,15 +22,16 @@ multiple_regression <- function(
   estimate <- reg_results[, "Estimate"]
   se <- reg_results[, "Std. Error"]
   t_stat <- reg_results[, "t value"]
-  p_value <- pretty_round_p_value(reg_results[, "Pr(>|t|)"])
+  p_value <- kim::pretty_round_p_value(reg_results[, "Pr(>|t|)"])
   r_squared <- model_summary[["r.squared"]]
   adj_r_squared <- model_summary[["adj.r.squared"]]
   df_model <- model_summary[["fstatistic"]][["numdf"]]
   df_residual <- model_summary[["fstatistic"]][["dendf"]]
   f_stat <- model_summary[["fstatistic"]][["value"]]
-  model_p_value <- pretty_round_p_value(
+  model_p_value <- kim::pretty_round_p_value(
     stats::pf(f_stat, df_model, df_residual, lower.tail = FALSE),
-    include_p_equals = TRUE)
+    include_p_equals = TRUE
+  )
   n <- nrow(stats::model.frame(model))
   # standardized betas
   std_beta <- lm.beta::lm.beta(model)[["standardized.coefficients"]]
@@ -38,7 +39,8 @@ multiple_regression <- function(
   if (!is.null(sigfigs) & !is.null(round_digits_after_decimal)) {
     stop(paste0(
       "Round to nth digit or n sigfigs? ",
-      "You can provide a value for EITHER argument, but NOT both."))
+      "You can provide a value for EITHER argument, but NOT both."
+    ))
   }
   if (is.null(sigfigs) & is.null(round_digits_after_decimal)) {
     sigfigs <- 3
@@ -59,11 +61,13 @@ multiple_regression <- function(
     t_stat <- round(t_stat, round_digits_after_decimal)
     r_squared <- round(r_squared, round_digits_after_decimal)
     adj_r_squared <- round(
-      adj_r_squared, round_digits_after_decimal)
+      adj_r_squared, round_digits_after_decimal
+    )
     f_stat <- round(f_stat, round_digits_after_decimal)
   }
   t1 <- data.table::data.table(
-    variable, estimate, se, std_beta, t_stat, p_value)
+    variable, estimate, se, std_beta, t_stat, p_value
+  )
   # add an empty row
   t2 <- rbind(t1, as.list(rep("", ncol(t1))))
   # add model stats
@@ -73,14 +77,16 @@ multiple_regression <- function(
     paste0("F(", df_model, ", ", df_residual, ") = ", f_stat),
     paste0("Model ", model_p_value),
     paste0("N = ", n),
-    paste0("DV: ", all.vars(formula[[2]])))
+    paste0("DV: ", all.vars(formula[[2]]))
+  )
   t3 <- data.table::data.table(
     variable = variable_2,
     estimate = rep("", length(variable_2)),
     se = rep("", length(variable_2)),
     std_beta = rep("", length(variable_2)),
     t_stat = rep("", length(variable_2)),
-    p_value = rep("", length(variable_2)))
+    p_value = rep("", length(variable_2))
+  )
   t4 <- rbind(t2, t3)
   return(t4)
 }
