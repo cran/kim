@@ -1,3 +1,9 @@
+# kim 0.2.35
+* Added functions including clean_data_from_qualtrics and compare_datasets
+
+# kim 0.2.25
+* Added the histogram function and updated code using CodeFactor
+
 # kim 0.2.20
 * Added crucial functions including prep and update_kim
 

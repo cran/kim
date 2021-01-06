@@ -6,6 +6,9 @@
 #' @param dv_name name of the dependent variable
 #' @param iv_name name(s) of the independent variable(s).
 #' Up to two independent variables can be supplied.
+#' @param na.rm logical. If \code{na.rm = TRUE}, NA values in
+#' independent and dependent variables will be removed before
+#' calculating group means.
 #' @param error_bar if \code{error_bar = "se"}; error bars will be +/-1
 #' standard error, if \code{error_bar = "ci"} error bars will be a
 #' confidence interval; if \code{error_bar = "pi"}, error bars will be
@@ -24,6 +27,9 @@
 #' @param legend_position position of the legend:
 #' \code{"none", "top", "right", "bottom", "left", "none"}
 #' (default = \code{"right"})
+#' @param y_axis_title_vjust position of the y axis title (default = 0.85).
+#' If default is used, \code{y_axis_title_vjust = 0.85}, the y axis title
+#' will be positioned at 85% of the way up from the bottom of the plot.
 #' @return by default, the output will be a ggplot object.
 #' If \code{output = "table"}, the output will be a data.table object.
 #' @examples
@@ -42,15 +48,22 @@ plot_group_means <- function(
   data = NULL,
   dv_name = NULL,
   iv_name = NULL,
+  na.rm = TRUE,
   error_bar = "ci",
   error_bar_range = 0.95,
   line_size = 1,
   dot_size = 3,
   error_bar_tip_width = 0.13,
   position_dodge = 0.13,
-  legend_position = "right") {
+  legend_position = "right",
+  y_axis_title_vjust = 0.85) {
   # convert to data table
-  dt1 <- data.table::setDT(copy(data))[, c(dv_name, iv_name), with = FALSE]
+  dt1 <- data.table::setDT(
+    data.table::copy(data))[, c(dv_name, iv_name), with = FALSE]
+  # remove na
+  if (na.rm == TRUE) {
+    dt1 <- stats::na.omit(dt1)
+  }
   # convert iv to factors
   for (col in iv_name) {
     data.table::set(dt1, j = col, value = as.factor(dt1[[col]]))
@@ -125,7 +138,6 @@ plot_group_means <- function(
   g1 <- g1 + geom_line(size = line_size, position = pd)
   g1 <- g1 + geom_point(size = dot_size, position = pd)
   if (length(iv_name) == 2) {
-    g1 <- g1 + theme(legend.position = legend_position)
     g1 <- g1 + labs(color = iv_name[2])
   }
   g1 <- g1 + xlab(iv_name[1])
@@ -136,27 +148,8 @@ plot_group_means <- function(
     )
   )
   # plot theme
-  g1 <- g1 + theme_classic(base_size = 20) %+replace%
-    theme(
-      plot.title = element_text(hjust = 0.5),
-      legend.position = legend_position,
-      axis.title.x = element_text(margin = margin(t = 24)),
-      axis.title.y = element_text(
-        angle = 0, vjust = 0.85,
-        margin = margin(r = 24)
-      ),
-      axis.title = element_text(
-        face = "bold", color = "black", size = 24
-      ),
-      axis.text = element_text(
-        face = "bold", color = "black", size = 20
-      ),
-      legend.title = element_text(
-        face = "bold", color = "black", size = 24
-      ),
-      legend.text = element_text(
-        face = "bold", color = "black", size = 20
-      )
-    )
+  g1 <- g1 + theme_kim(
+    y_axis_title_vjust = y_axis_title_vjust,
+    legend_position = legend_position)
   return(g1)
 }

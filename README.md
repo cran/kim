@@ -5,10 +5,17 @@
 
 <!-- badges: start -->
 
+[![CRAN
+checks](https://cranchecks.info/badges/summary/kim)](https://cran.r-project.org/web/checks/check_results_kim.html)
+[![Travis build
+status](https://travis-ci.com/jinkim3/kim.svg?branch=master)](https://travis-ci.com/jinkim3/kim)
 [![R build
 status](https://github.com/jinkim3/kim/workflows/R-CMD-check/badge.svg)](https://github.com/jinkim3/kim/actions)
+
 [![Total
 Downloads](http://cranlogs.r-pkg.org/badges/grand-total/kim?color=blue)](https://cran.r-project.org/package=kim)
+[![](https://img.shields.io/github/last-commit/jinkim3/kim.svg)](https://github.com/jinkim3/kim/commits/master)
+[![CodeFactor](https://www.codefactor.io/repository/github/jinkim3/kim/badge)](https://www.codefactor.io/repository/github/jinkim3/kim)
 <!-- badges: end -->
 
 This package facilitates and simplifies analyses of experimental data.
@@ -20,18 +27,26 @@ conducts mediation analyses.
 ## Installation
 
 You can install the released version of kim from
-[CRAN](https://CRAN.R-project.org) with:
+[CRAN](https://cran.r-project.org/package=kim) with:
 
 ``` r
 install.packages("kim")
 ```
 
-You can also install the development version from
-[GitHub](https://github.com/) with:
+You can also install the development version from [kim on
+GitHub](https://github.com/jinkim3/kim) with:
 
 ``` r
 install.packages("devtools")
 devtools::install_github("jinkim3/kim")
+```
+
+If you run into errors while using the package, try updating the package
+to the most recent version available on [kim on
+GitHub](https://github.com/jinkim3/kim) with:
+
+``` r
+update_kim()
 ```
 
 ## Example

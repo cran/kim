@@ -8,13 +8,15 @@ plot_group_means(
   data = NULL,
   dv_name = NULL,
   iv_name = NULL,
+  na.rm = TRUE,
   error_bar = "ci",
   error_bar_range = 0.95,
   line_size = 1,
   dot_size = 3,
   error_bar_tip_width = 0.13,
   position_dodge = 0.13,
-  legend_position = "right"
+  legend_position = "right",
+  y_axis_title_vjust = 0.85
 )
 }
 \arguments{
@@ -24,6 +26,10 @@ plot_group_means(
 
 \item{iv_name}{name(s) of the independent variable(s).
 Up to two independent variables can be supplied.}
+
+\item{na.rm}{logical. If \code{na.rm = TRUE}, NA values in
+independent and dependent variables will be removed before
+calculating group means.}
 
 \item{error_bar}{if \code{error_bar = "se"}; error bars will be +/-1
 standard error, if \code{error_bar = "ci"} error bars will be a
@@ -49,6 +55,10 @@ be horizontally offset from each other so as not to overlap?
 \item{legend_position}{position of the legend:
 \code{"none", "top", "right", "bottom", "left", "none"}
 (default = \code{"right"})}
+
+\item{y_axis_title_vjust}{position of the y axis title (default = 0.85).
+If default is used, \code{y_axis_title_vjust = 0.85}, the y axis title
+will be positioned at 85\% of the way up from the bottom of the plot.}
 }
 \value{
 by default, the output will be a ggplot object.

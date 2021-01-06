@@ -11,7 +11,8 @@ two_way_anova(
   iv_2_name = NULL,
   iv_1_values = NULL,
   iv_2_values = NULL,
-  robust = TRUE,
+  sigfigs = 3,
+  robust = FALSE,
   iterations = 2000,
   plot = FALSE,
   error_bar = "ci",
@@ -38,6 +39,9 @@ these values for the first independent variable}
 
 \item{iv_2_values}{restrict all analyses to observations having
 these values for the second independent variable}
+
+\item{sigfigs}{number of significant digits to which to round
+values in anova table (default = 3)}
 
 \item{robust}{if \code{TRUE}, conduct a robust ANOAVA in addition.}
 
