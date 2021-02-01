@@ -1,3 +1,11 @@
+# kim 0.2.71
+* Fixed bugs, removed dependency for dplyr, and added 
+function(s), including write_csv, print_loop_progress, 
+histogram_w_outlier_bin, find_duplicates, start_kim
+
+# kim 0.2.38
+* Added functions including read_sole_csv, read_csv, ggsave_quick
+
 # kim 0.2.35
 * Added functions including clean_data_from_qualtrics and compare_datasets
 

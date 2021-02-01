@@ -34,12 +34,12 @@ setup_r_env <- function(
   # clear objects in the global environment
   if (clear_global_env == TRUE) {
     rm(list = ls(pos = ".GlobalEnv"), pos = ".GlobalEnv")
-    message("All objects in the global environment has been removed")
+    message("All objects in the global environment has been removed.")
   }
   # set wd to the current file
   if (set_wd_to_current_file == TRUE) {
     if (Sys.getenv("RSTUDIO") == 1) {
-      kim::prep("rstudioapi")
+      kim::prep("rstudioapi", silent_if_successful = TRUE)
       setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
       message(paste0(
         "The working directory has been set to the location of the current",
@@ -58,7 +58,7 @@ setup_r_env <- function(
     while ("package:kim" %in% search()) {
       detach("package:kim", unload = TRUE, character.only = TRUE)
     }
-    kim::prep("kim")
+    kim::prep("kim", silent_if_successful = TRUE)
     message(paste0(
       "Package 'kim' v",
       utils::packageVersion("kim"),
