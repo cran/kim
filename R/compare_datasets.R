@@ -45,11 +45,14 @@ compare_datasets <- function(
   dataset_list = NULL) {
   # bind the vars locally to the function
   ..different_vs_same <- NULL
+  # copy data sets
+  dt1 <- copy(dataset_1)
+  dt2 <- copy(dataset_2)
   # check inputs
-  if (is.null(dataset_list) & !is.null(dataset_1) & !is.null(dataset_2)) {
-    dt_list <- list(dataset_1, dataset_2)
+  if (is.null(dataset_list) & !is.null(dt1) & !is.null(dt2)) {
+    dt_list <- list(dt1, dt2)
   } else if (
-    !is.null(dataset_list) & is.null(dataset_1) & is.null(dataset_2)) {
+    !is.null(dataset_list) & is.null(dt1) & is.null(dt2)) {
     if (!is.list(dataset_list)) {
       stop(paste0("The input for dataset_list is not a list."))
     }
@@ -58,8 +61,8 @@ compare_datasets <- function(
     stop(paste0(
       "Please check the data set inputs.\nEither enter a list of ",
       "data sets, e.g., dataset_list = list(mtcars, iris)\n",
-      "or enter two data sets, e.g., dataset_1 = mtcars, ",
-      "dataset_2 = iris"))
+      "or enter two data sets, e.g., dt1 = mtcars, ",
+      "dt2 = iris"))
   }
   # set names of the data sets
   if (is.null(names(dt_list))) {
@@ -148,7 +151,7 @@ compare_datasets <- function(
       dataset = dataset_name, col_types_by_dt)
     # print the different column types
     message(paste0(
-      'The columnS with the name(s) "',
+      'The columns with the name(s) "',
       paste0(cols_w_diff_class, collapse = ", "),
       '" were of different class ',
       "in the following two data sets:"))
@@ -182,6 +185,27 @@ compare_datasets <- function(
           "in the following two data sets:"))
         return(check_ind_cols_result)
       }
+    }
+  }
+  # check if all data sets are data tables
+  is_data_table <- vapply(
+    dt_list, is.data.table, FUN.VALUE = logical(1L))
+  # check data.table keys
+  if (all(is_data_table)) {
+    keys <- vapply(dt_list, function(x) {
+      if (is.null(key(x))) {
+        return("..No key has been set for this data table.")
+      } else {
+        return(key(x))
+      }
+    }, FUN.VALUE = character(1L))
+    # print keys if key values are not all identical
+    if (length(unique(keys)) != 1) {
+      check_key_result <- data.table(
+        dataset = dataset_name,
+        "data_table_key" = keys)
+      message("The data table keys were different in the data sets: ")
+      return(check_key_result)
     }
   }
   # check whether data sets are identical

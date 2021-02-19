@@ -16,11 +16,14 @@
 #' @param error_bar_range width of the confidence or prediction interval
 #' (default = 0.95 for 95 percent confidence or prediction interval).
 #' This argument will not apply when \code{error_bar = "se"}
+#' @param lines_connecting_means logical. Should lines connecting means
+#' within each group be drawn? (default = TRUE)
 #' @param line_size thickness of the lines connecting group means,
 #' (default = 1)
 #' @param dot_size size of the dots indicating group means (default = 3)
 #' @param error_bar_tip_width graphically, width of the segments
 #' at the end of error bars (default = 0.13)
+#' @param error_bar_thickness thickness of the error bars (default = 1)
 #' @param position_dodge by how much should the group means and error bars
 #' be horizontally offset from each other so as not to overlap?
 #' (default = 0.13)
@@ -51,9 +54,11 @@ plot_group_means <- function(
   na.rm = TRUE,
   error_bar = "ci",
   error_bar_range = 0.95,
+  lines_connecting_means = TRUE,
   line_size = 1,
   dot_size = 3,
   error_bar_tip_width = 0.13,
+  error_bar_thickness = 1,
   position_dodge = 0.13,
   legend_position = "right",
   y_axis_title_vjust = 0.85) {
@@ -99,32 +104,40 @@ plot_group_means <- function(
   }
   # The errorbars will overlap,
   # so use position_dodge to move them horizontally
-  pd <- position_dodge(position_dodge)
+  pd <- position_dodge(width = position_dodge)
+  # points and lines
+  if (lines_connecting_means == TRUE) {
+    g1 <- g1 + geom_line(size = line_size, position = pd)
+  }
+  g1 <- g1 + geom_point(size = dot_size, position = pd)
+  if (length(iv_name) == 2) {
+    g1 <- g1 + labs(color = iv_name[2])
+  }
   # build further
   if (error_bar == "ci") {
     g1 <- g1 + geom_errorbar(aes(
-      ymin = dt2$ci_95_ll, ymax = dt2$ci_95_ul
-    ),
-    width = error_bar_tip_width, size = line_size, position = pd
-    )
+      ymin = dt2$ci_95_ll, ymax = dt2$ci_95_ul),
+    width = error_bar_tip_width,
+    size = error_bar_thickness,
+    position = pd)
     error_bar_desc_text <- paste0(
-      error_bar_range * 100, "% confidence intervals"
-    )
+      error_bar_range * 100, "% confidence intervals")
   }
   if (error_bar == "se") {
     g1 <- g1 + geom_errorbar(aes(
-      ymin = dt2$mean - dt2$se, ymax = dt2$mean + dt2$se
-    ),
-    width = error_bar_tip_width, size = line_size, position = pd
-    )
+      ymin = dt2$mean - dt2$se,
+      ymax = dt2$mean + dt2$se),
+    width = error_bar_tip_width,
+    size = error_bar_thickness,
+    position = pd)
     error_bar_desc_text <- "one standard error (+/- 1 SE)"
   }
   if (error_bar == "pi") {
     g1 <- g1 + geom_errorbar(aes(
-      ymin = dt2$pi_95_ll, ymax = dt2$pi_95_ul
-    ),
-    width = error_bar_tip_width, size = line_size, position = pd
-    )
+      ymin = dt2$pi_95_ll, ymax = dt2$pi_95_ul),
+    width = error_bar_tip_width,
+    size = error_bar_thickness,
+    position = pd)
     error_bar_desc_text <- paste0(
       error_bar_range * 100, "% prediction intervals"
     )
@@ -133,12 +146,6 @@ plot_group_means <- function(
         error_bar_desc_text, " (+/- ~1.96 SD)"
       )
     }
-  }
-  # points and lines
-  g1 <- g1 + geom_line(size = line_size, position = pd)
-  g1 <- g1 + geom_point(size = dot_size, position = pd)
-  if (length(iv_name) == 2) {
-    g1 <- g1 + labs(color = iv_name[2])
   }
   g1 <- g1 + xlab(iv_name[1])
   g1 <- g1 + ylab(dv_name)
