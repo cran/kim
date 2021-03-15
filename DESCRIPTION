@@ -1,12 +1,13 @@
 Package: kim
 Title: Functions for Behavioral Science Researchers
-Version: 0.2.96
+Version: 0.2.133
 Authors@R: 
     person(given = "Jin",
            family = "Kim",
            role = c("aut", "cre"),
            email = "jin.m.kim@yale.edu",
-           comment = c(ORCID = "https://orcid.org/0000-0002-5013-3958"))
+           comment = c(ORCID = "https://orcid.org/0000-0002-5013-3958",
+           website = "https://jinkim.science"))
 Description: Miscellaneous functions to simplify and expedite
     analyses of experimental data. Examples include a function
     that plots sample means of groups in a factorial experimental design,
@@ -22,8 +23,9 @@ Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2021-02-19 04:06:24 UTC; c
-Author: Jin Kim [aut, cre] (<https://orcid.org/0000-0002-5013-3958>)
+Packaged: 2021-03-13 18:30:33 UTC; c
+Author: Jin Kim [aut, cre] (<https://orcid.org/0000-0002-5013-3958>,
+    https://jinkim.science)
 Maintainer: Jin Kim <jin.m.kim@yale.edu>
 Repository: CRAN
-Date/Publication: 2021-02-19 07:30:07 UTC
+Date/Publication: 2021-03-15 01:50:02 UTC

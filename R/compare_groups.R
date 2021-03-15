@@ -9,6 +9,12 @@
 #' @param dv_name name of the dependent variable (measure variable
 #' of interest)
 #' @param sigfigs number of significant digits to round to
+#' @param mann_whitney if \code{mann_whitney = TRUE}, Mann-Whitney test
+#' results will be included in the pairwise comparison data.table.
+#' If \code{mann_whitney = FALSE}, Mann-Whitney tests will not be performed.
+#' @param t_test_stats if \code{t_test_stats = TRUE}, t-test statistic
+#' and degrees of freedom will be included in the pairwise
+#' comparison data.table.
 #' @return the output will be a list of (1) ggplot object
 #' (histogram by group) (2) a data.table with descriptive statistics by
 #' group; and (3) a data.table with pairwise comparison results
@@ -20,7 +26,9 @@ compare_groups <- function(
   data = NULL,
   iv_name = NULL,
   dv_name = NULL,
-  sigfigs = 3) {
+  sigfigs = 3,
+  mann_whitney = TRUE,
+  t_test_stats = FALSE) {
   # histogram by group
   output_1 <- kim::histogram_by_group(
     data = data, iv_name = iv_name, dv_name = dv_name)
@@ -31,7 +39,9 @@ compare_groups <- function(
   # pairwise comparison results
   output_3 <- kim::t_test_pairwise(
     data = data, iv_name = iv_name, dv_name = dv_name,
-    sigfigs = sigfigs)
+    sigfigs = sigfigs,
+    mann_whitney = mann_whitney,
+    t_test_stats = t_test_stats)
   # print outputs
   output_1
   output_2
