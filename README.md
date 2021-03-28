@@ -7,15 +7,12 @@
 
 [![CRAN
 checks](https://cranchecks.info/badges/summary/kim)](https://cran.r-project.org/web/checks/check_results_kim.html)
-[![Travis build
-status](https://travis-ci.com/jinkim3/kim.svg?branch=master)](https://travis-ci.com/jinkim3/kim)
 [![R build
 status](https://github.com/jinkim3/kim/workflows/R-CMD-check/badge.svg)](https://github.com/jinkim3/kim/actions)
-
-[![Total
-Downloads](http://cranlogs.r-pkg.org/badges/grand-total/kim?color=blue)](https://cran.r-project.org/package=kim)
 [![](https://img.shields.io/github/last-commit/jinkim3/kim.svg)](https://github.com/jinkim3/kim/commits/master)
 [![CodeFactor](https://www.codefactor.io/repository/github/jinkim3/kim/badge)](https://www.codefactor.io/repository/github/jinkim3/kim)
+[![Total
+Downloads](http://cranlogs.r-pkg.org/badges/grand-total/kim?color=blue)](https://cran.r-project.org/package=kim)
 <!-- badges: end -->
 
 This package contains various functions that simplify and expedite
@@ -37,8 +34,8 @@ You can also install the development version from [kim on
 GitHub](https://github.com/jinkim3/kim) with:
 
 ``` r
-install.packages("devtools")
-devtools::install_github("jinkim3/kim")
+install.packages("remotes")
+remotes::install_github("jinkim3/kim")
 ```
 
 If you run into errors while using the package, try updating the package
@@ -57,8 +54,8 @@ Here are some examples of using this package.
 library(kim)
 
 # update the package 'kim', clear the console and environment,
-# set up working directory to location of the current file,
-# and load the default packages ('data.table' and 'ggplot2')
+# set up working directory to location of the active document,
+# and load the two default packages ('data.table' and 'ggplot2')
 start_kim()
 
 # create a scatter plot

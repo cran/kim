@@ -1,3 +1,9 @@
+# kim 0.2.172
+* Fixed bugs, updated function documentations, and added new function(s) 
+including setwd_to_active_doc.
+* Deleted "LazyData: true" from DESCRIPTION
+* Started removing dependencies on other packages
+
 # kim 0.2.133
 * Fixed bugs, and added new function(s) including id_across_datasets.
 
