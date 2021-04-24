@@ -1,8 +1,31 @@
+# kim 0.3.13
+* In response to CRAN Team's review, the package title was edited.
+* In response to a new error message from CRAN check 
+(r-devel-windows-x86_64-gcc10-UCRT), most dependencies were removed.
+
+
+# kim 0.3.11
+* Removed dependencies on most packages. In previous versions of 
+Package 'kim', all dependencies (packages) required to run all functions
+in Package 'kim' were installed when Package 'kim' was installed for the 
+first time. In contrast, with Version 0.3.11, Package 'kim' will now ask 
+users to install dependencies themselves if the functions they are using 
+require such dependencies.
+* Fixed bugs and added new function(s) including install_all_dependencies.
+
+# kim 0.2.207
+* Fixed bugs and added new function(s) including su and round_flexibly.
+
+# kim 0.2.204
+* Fixed bugs and added new function(s) including change_var_names, 
+check_req_pkg, skewness, and kurtosis.
+* Continued to remove dependencies on other packages.
+
 # kim 0.2.172
 * Fixed bugs, updated function documentations, and added new function(s) 
 including setwd_to_active_doc.
-* Deleted "LazyData: true" from DESCRIPTION
-* Started removing dependencies on other packages
+* Deleted “LazyData: true” from DESCRIPTION.
+* Started removing dependencies on other packages.
 
 # kim 0.2.133
 * Fixed bugs, and added new function(s) including id_across_datasets.

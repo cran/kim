@@ -1,6 +1,11 @@
 #' Floodlight 2 by Continuous
 #'
-#' Conduct a floodlight analysis for 2 x Continuous design
+#' Conduct a floodlight analysis for 2 x Continuous design.
+#'
+#' The following package(s) must be installed prior to running this function:
+#' Package 'interactions' v1.1.1 (or possibly a higher version) by
+#' Jacob A. Long (2019),
+#' <https://cran.r-project.org/package=interactions>
 #'
 #' @param data a data object (a data frame or a data.table)
 #' @param iv_name name of the binary independent variable
@@ -58,7 +63,7 @@
 #' dv_name = "mpg",
 #' mod_name = "qsec")
 #' @export
-#' @import data.table ggplot2 interactions
+#' @import data.table
 floodlight_2_by_continuous <- function(
   data = NULL,
   iv_name = NULL,
@@ -83,6 +88,35 @@ floodlight_2_by_continuous <- function(
   legend_title = NULL,
   round_decimals_int_p_value = 3
 ) {
+  # check if Package 'ggplot2' is installed
+  if (!"ggplot2" %in% rownames(utils::installed.packages())) {
+    message(paste0(
+      "This function requires the installation of Package 'ggplot2'.",
+      "\nTo install Package 'ggplot2', type ",
+      "'kim::prep(ggplot2)'",
+      "\n\nAlternatively, to install all packages (dependencies) required ",
+      "for all\nfunctions in Package 'kim', type ",
+      "'kim::install_all_dependencies()'"))
+    return()
+  } else {
+    # proceed if Package 'ggplot2' is already installed
+    kim::prep("ggplot2")
+  }
+  # check if Package 'interactions' is installed
+  if (!"interactions" %in% rownames(utils::installed.packages())) {
+    message(paste0(
+      "To conduct floodlight analysis, Package 'interactions' must ",
+      "be installed.\nTo install Package 'interactions', type ",
+      "'kim::prep(interactions)'",
+      "\n\nAlternatively, to install all packages (dependencies) required ",
+      "for all\nfunctions in Package 'kim', type ",
+      "'kim::install_all_dependencies()'"))
+    return()
+  } else {
+    # proceed if Package 'interactions' is already installed
+    jn_fn_from_interactions <- utils::getFromNamespace(
+      "johnson_neyman", "interactions")
+  }
   # bind the vars locally to the function
   dv <- iv_binary <- iv_factor <- mod <- NULL
   # convert to data.table
@@ -133,7 +167,7 @@ floodlight_2_by_continuous <- function(
     labels = c(as.character(iv_level_1), as.character(iv_level_2)))]
   names(dt_2) <- c("iv", "dv", "mod", "iv_binary", "iv_factor")
   # jn points
-  johnson_neyman_result <- interactions::johnson_neyman(
+  johnson_neyman_result <- jn_fn_from_interactions(
     stats::lm(dv ~ iv_binary * mod, data = dt_2),
     pred = iv_binary,
     modx = mod)

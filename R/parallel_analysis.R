@@ -2,8 +2,11 @@
 #'
 #' Conducts a parallel analysis to determine how many factors
 #' to retain in a factor analysis.
-#' Uses the 'paran' package v1.5.2 by
-#' Dinno (2018) <https://cran.r-project.org/package=paran>
+#'
+#' The following package(s) must be installed prior to running the function:
+#' Package 'paran' v1.5.2 (or possibly a higher version) by
+#' Alexis Dinno (2018),
+#' <https://cran.r-project.org/package=paran>
 #'
 #' @param data a data object (a data frame or a data.table)
 #' @param names_of_vars names of the variables
@@ -19,13 +22,40 @@
 #' # parallel_analysis(
 #' # data = mtcars, names_of_vars = c("carb", "vs", "gear", "am"))
 #' @export
-#' @import paran ggplot2
 # parallel analysis factor analysis
 parallel_analysis <- function(
   data = NULL,
   names_of_vars = NULL,
   iterations = NULL,
   percentile_for_eigenvalue = 95) {
+  # check if Package 'ggplot2' is installed
+  if (!"ggplot2" %in% rownames(utils::installed.packages())) {
+    message(paste0(
+      "This function requires the installation of Package 'ggplot2'.",
+      "\nTo install Package 'ggplot2', type ",
+      "'kim::prep(ggplot2)'",
+      "\n\nAlternatively, to install all packages (dependencies) required ",
+      "for all\nfunctions in Package 'kim', type ",
+      "'kim::install_all_dependencies()'"))
+    return()
+  } else {
+    # proceed if Package 'ggplot2' is already installed
+    kim::prep("ggplot2")
+  }
+  # check if Package 'paran' is installed
+  if (!"paran" %in% rownames(utils::installed.packages())) {
+    message(paste0(
+      "To conduct a parallel analysis, Package 'paran' must ",
+      "be installed.\nTo install Package 'paran', type ",
+      "'kim::prep(paran)'",
+      "\n\nAlternatively, to install all packages (dependencies) required ",
+      "for all\nfunctions in Package 'kim', type ",
+      "'kim::install_all_dependencies()'"))
+    return()
+  } else {
+    # proceed if Package 'paran' is already installed
+    parallel_analysis_function <- utils::getFromNamespace("paran", "paran")
+  }
   # bind the vars locally to the function
   eigenvalue <- eigenvalue_type <- NULL
   # convert to data table and omit na
@@ -37,7 +67,7 @@ parallel_analysis <- function(
     iterations <- 0
   }
   # parallel analysis
-  pa_result <- paran::paran(
+  pa_result <- parallel_analysis_function(
     x = dt,
     iterations = iterations, centile = percentile_for_eigenvalue,
     quietly = FALSE,

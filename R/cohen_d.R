@@ -1,7 +1,12 @@
 #' Cohen's d with confidence interval
 #'
-#' Calculates Cohen's d using the 'effsize' package v0.8.1 by
-#' Torchiano (2020) <https://github.com/mtorchiano/effsize/>
+#' Calculates Cohen's d and its confidence interval.
+#'
+#' To construct confidence interval around Cohen's d with this function,
+#' the following package(s) must be installed prior to running this function:
+#' Package 'effsize' v0.8.1 (or possibly a higher version) by
+#' Marco Torchiano (2020),
+#' <https://cran.r-project.org/package=effsize>
 #'
 #' @param sample_1 a vector of values in the first of two samples
 #' @param sample_2 a vector of values in the second of two samples
@@ -18,6 +23,25 @@ cohen_d <- function(
   sample_1 = NULL, sample_2 = NULL,
   data = NULL, iv_name = NULL, dv_name = NULL,
   ci_range = 0.95) {
+  # check if Package 'effsize' is installed
+  if (!"effsize" %in% rownames(utils::installed.packages())) {
+    message(paste0(
+      "To calculate the confidence interval of Cohen's d, ",
+      "Package 'effsize' must ",
+      "be installed.\nTo install Package 'effsize', type ",
+      "'kim::prep(effsize)'",
+      "\n\nAlternatively, to install all packages (dependencies) required ",
+      "for all\nfunctions in Package 'kim', type ",
+      "'kim::install_all_dependencies()'"))
+    output <- kim::cohen_d_from_cohen_textbook(
+      sample_1 = sample_1, sample_2 = sample_2,
+      data = data, iv_name = iv_name, dv_name = dv_name)
+    return(output)
+  }
+  # proceed if Package 'effsize' is already installed
+  cohen_d_fn_from_effsize <- utils::getFromNamespace(
+      "cohen.d", "effsize")
+  # check arguments
   if (!is.null(sample_1) & !is.null(sample_2)) {
     if (is.numeric(sample_1) & is.numeric(sample_2)) {
       df <- data.frame(
@@ -51,5 +75,7 @@ cohen_d <- function(
   }
   # convert iv to factor
   df$iv <- factor(df$iv)
-  effsize::cohen.d(formula = dv ~ iv, data = df, conf.level = ci_range)
+  output <- cohen_d_fn_from_effsize(
+    formula = dv ~ iv, data = df, conf.level = ci_range)
+  return(output)
 }
