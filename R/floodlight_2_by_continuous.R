@@ -24,6 +24,12 @@
 #' @param dot_alpha opacity of the dots (0 = completely transparent,
 #' 1 = completely opaque). By default, \code{dot_alpha = 0.5}
 #' @param dot_size size of the dots (default = 4)
+#' @param interaction_p_value_font_size font size for the interaction
+#' p value (default = 6)
+#' @param jn_point_font_size font size for Johnson-Neyman point labels
+#' (default = 6)
+#' @param plot_margin margin for the plot
+#' By default \code{plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt")}
 #' @param legend_position position of the legend (default = "right").
 #' If \code{legend_position = "none"}, the legend will be removed.
 #' @param reg_line_types types of the regression lines for the two levels
@@ -57,11 +63,13 @@
 #' decimal point should the p value for the interaction term be
 #' rounded? (default = 3)
 #' @examples
+#' \donttest{
 #' floodlight_2_by_continuous(
 #' data = mtcars,
 #' iv_name = "am",
 #' dv_name = "mpg",
 #' mod_name = "qsec")
+#' }
 #' @export
 #' @import data.table
 floodlight_2_by_continuous <- function(
@@ -76,6 +84,9 @@ floodlight_2_by_continuous <- function(
   jitter_y_percent = 0,
   dot_alpha = 0.5,
   dot_size = 4,
+  interaction_p_value_font_size = 6,
+  jn_point_font_size = 6,
+  plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
   legend_position = "right",
   reg_line_types = c("solid", "dashed"),
   jn_line_types = c("solid", "solid"),
@@ -88,8 +99,10 @@ floodlight_2_by_continuous <- function(
   legend_title = NULL,
   round_decimals_int_p_value = 3
 ) {
+  # installed packages
+  installed_pkgs <- rownames(utils::installed.packages())
   # check if Package 'ggplot2' is installed
-  if (!"ggplot2" %in% rownames(utils::installed.packages())) {
+  if (!"ggplot2" %in% installed_pkgs) {
     message(paste0(
       "This function requires the installation of Package 'ggplot2'.",
       "\nTo install Package 'ggplot2', type ",
@@ -98,12 +111,9 @@ floodlight_2_by_continuous <- function(
       "for all\nfunctions in Package 'kim', type ",
       "'kim::install_all_dependencies()'"))
     return()
-  } else {
-    # proceed if Package 'ggplot2' is already installed
-    kim::prep("ggplot2")
   }
   # check if Package 'interactions' is installed
-  if (!"interactions" %in% rownames(utils::installed.packages())) {
+  if (!"interactions" %in% installed_pkgs) {
     message(paste0(
       "To conduct floodlight analysis, Package 'interactions' must ",
       "be installed.\nTo install Package 'interactions', type ",
@@ -116,6 +126,16 @@ floodlight_2_by_continuous <- function(
     # proceed if Package 'interactions' is already installed
     jn_fn_from_interactions <- utils::getFromNamespace(
       "johnson_neyman", "interactions")
+  }
+  # check whether all arguments had required inputs
+  if (is.null(iv_name)) {
+    stop("Please enter a variable name for the input 'iv_name'")
+  }
+  if (is.null(dv_name)) {
+    stop("Please enter a variable name for the input 'dv_name'")
+  }
+  if (is.null(mod_name)) {
+    stop("Please enter a variable name for the input 'mod_name'")
   }
   # bind the vars locally to the function
   dv <- iv_binary <- iv_factor <- mod <- NULL
@@ -155,9 +175,9 @@ floodlight_2_by_continuous <- function(
     iv_level_2 <- iv_level_order[2]
   }
   # copy data table
-  dt_2 <- copy(dt_1)
+  dt_2 <- data.table::copy(dt_1)
   # add binary variable
-  dt_2[, iv_binary := fcase(
+  dt_2[, iv_binary := data.table::fcase(
     get(iv_name) == iv_level_1, 0,
     get(iv_name) == iv_level_2, 1)]
   # add a factor
@@ -175,34 +195,34 @@ floodlight_2_by_continuous <- function(
   # plot simple effects at values of moderator
   if (output == "simple_effects_plot") {
     g1 <- johnson_neyman_result[["plot"]]
-    g1 <- g1 + ggtitle(paste0(
+    g1 <- g1 + ggplot2::ggtitle(paste0(
       "Johnson-Neyman Plot - ",
       "R Package 'interactions', Jacob A. Long (2020)"))
-    g1 <- g1 + xlab(mod_name)
-    g1 <- g1 + ylab(paste0("Slope of ", iv_name))
+    g1 <- g1 + ggplot2::xlab(mod_name)
+    g1 <- g1 + ggplot2::ylab(paste0("Slope of ", iv_name))
     return(g1)
   }
   # jitter
-  x_range <- diff(range(dt_2[, mod]))
-  y_range <- diff(range(dt_2[, dv]))
+  x_range <- max(dt_2[, mod], na.rm = TRUE) - min(dt_2[, mod], na.rm = TRUE)
+  y_range <- max(dt_2[, dv], na.rm = TRUE) - min(dt_2[, dv], na.rm = TRUE)
   # plot
-  g1 <- ggplot(
+  g1 <- ggplot2::ggplot(
     data = dt_2,
-    aes(x = mod, y = dv,
+    ggplot2::aes(x = mod, y = dv,
         color = iv_factor,
         linetype = iv_factor))
   # plot points
-  g1 <- g1 + geom_point(
+  g1 <- g1 + ggplot2::geom_point(
     size = dot_size,
     alpha = dot_alpha,
-    position = position_jitter(
+    position = ggplot2::position_jitter(
       width = x_range * jitter_x_percent / 100,
       height = y_range * jitter_y_percent / 100))
   # plot regression lines
-  g1 <- g1 + geom_smooth(
+  g1 <- g1 + ggplot2::geom_smooth(
     formula = y ~ x,
     method = "lm", se = F)
-  g1 <- g1 + scale_linetype_manual(
+  g1 <- g1 + ggplot2::scale_linetype_manual(
     values = reg_line_types)
   # include interaction p value
   if (interaction_p_include == TRUE) {
@@ -213,8 +233,8 @@ floodlight_2_by_continuous <- function(
       round_digits_after_decimal = round_decimals_int_p_value)
     interaction_p_value_text <- paste0(
       "Interaction ", interaction_p_value)
-    # label jn points
-    g1 <- g1 + annotate(
+    # label interaction p value
+    g1 <- g1 + ggplot2::annotate(
       geom = "text",
       x = min(dt_2[, mod]) + x_range * 0.5,
       y = Inf,
@@ -222,7 +242,7 @@ floodlight_2_by_continuous <- function(
       hjust = 0.5, vjust = -3,
       fontface = "bold",
       color = "black",
-      size = 6)
+      size = interaction_p_value_font_size)
   }
   # positions of the lines marking johnson neyman points
   jn_line_pos <- jn_points
@@ -237,8 +257,9 @@ floodlight_2_by_continuous <- function(
   # apply the theme beforehand
   g1 <- g1 + kim::theme_kim(legend_position = legend_position)
   # allow labeling outside the plot area
-  suppressMessages(g1 <- g1 + coord_cartesian(clip = "off"))
-  g1 <- g1 + theme(plot.margin = unit(c(60, 7, 7, 7), "pt"))
+  suppressMessages(g1 <- g1 + ggplot2::coord_cartesian(clip = "off"))
+  g1 <- g1 + ggplot2::theme(
+    plot.margin = plot_margin)
   # if only one type is entered for jn line
   if (length(jn_line_types) == 1) {
     jn_line_types <- rep(jn_line_types, sum(is.finite(jn_line_pos)))
@@ -247,12 +268,12 @@ floodlight_2_by_continuous <- function(
   for(i in which(is.finite(jn_line_pos))) {
     # i <- 2
     # vertical line
-    g1 <- g1 + geom_vline(
+    g1 <- g1 + ggplot2::geom_vline(
       xintercept = jn_line_pos[i],
       linetype = jn_line_types[i],
       size = 1)
     # label jn points
-    g1 <- g1 + annotate(
+    g1 <- g1 + ggplot2::annotate(
       geom = "text",
       x = jn_line_pos[i],
       y = Inf,
@@ -260,7 +281,7 @@ floodlight_2_by_continuous <- function(
       hjust = 0.5, vjust = -0.5,
       fontface = "bold",
       color = "black",
-      size = 6)
+      size = jn_point_font_size)
   }
   # shade
   sig_inside_vs_outside <- ifelse(
@@ -288,53 +309,53 @@ floodlight_2_by_continuous <- function(
   # if sig area is inside
   if (sig_inside_vs_outside == "inside") {
     # nonsig area on the left
-    g1 <- g1 + annotate(
+    g1 <- g1 + ggplot2::annotate(
       "rect", xmin = -Inf, xmax = jn_line_pos[["Lower"]],
       ymin = -Inf, ymax = Inf,
       alpha = nonsig_region_alpha, fill = nonsig_region_color)
     # sig area in the middle
-    g1 <- g1 + annotate(
+    g1 <- g1 + ggplot2::annotate(
       "rect",
       xmin = jn_line_pos[["Lower"]],
       xmax = jn_line_pos[["Higher"]],
       ymin = -Inf, ymax = Inf,
       alpha = sig_region_alpha, fill = sig_region_color)
     # nonsig area on the right
-    g1 <- g1 + annotate(
+    g1 <- g1 + ggplot2::annotate(
       "rect", xmin = jn_line_pos[["Higher"]], xmax = Inf,
       ymin = -Inf, ymax = Inf,
       alpha = nonsig_region_alpha, fill = nonsig_region_color)
   }
   # x axis title
   if (is.null(x_axis_title)) {
-    g1 <- g1 + xlab(mod_name)
+    g1 <- g1 + ggplot2::xlab(mod_name)
   } else {
     if (x_axis_title == FALSE) {
-      g1 <- g1 + theme(axis.title.x = element_blank())
+      g1 <- g1 + ggplot2::theme(axis.title.x = element_blank())
     } else {
-      g1 <- g1 + xlab(x_axis_title)
+      g1 <- g1 + ggplot2::xlab(x_axis_title)
     }
   }
   # y axis title
   if (is.null(y_axis_title)) {
-    g1 <- g1 + ylab(dv_name)
+    g1 <- g1 + ggplot2::ylab(dv_name)
   } else {
     if (y_axis_title == FALSE) {
-      g1 <- g1 + theme(axis.title.y = element_blank())
+      g1 <- g1 + ggplot2::theme(axis.title.y = element_blank())
     } else {
-      g1 <- g1 + ylab(y_axis_title)
+      g1 <- g1 + ggplot2::ylab(y_axis_title)
     }
   }
   # legend title
   if (is.null(legend_title)) {
-    g1 <- g1 + labs(
+    g1 <- g1 + ggplot2::labs(
       color = iv_name,
       linetype = iv_name)
   } else {
     if (legend_title == FALSE) {
-      g1 <- g1 + theme(legend.title = element_blank())
+      g1 <- g1 + ggplot2::theme(legend.title = element_blank())
     } else {
-      g1 <- g1 + labs(
+      g1 <- g1 + ggplot2::labs(
         color = legend_title,
         linetype = legend_title)
     }

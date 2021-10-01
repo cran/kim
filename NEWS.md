@@ -1,8 +1,29 @@
+# kim 0.4.21
+* Fixed a critical error with the function merge_data_tables and
+merge_data_table_list
+* Plotting examples are now set to be skipped in the package testing 
+phase (to avoid producing NOTEs that prevent the package from being 
+published on CRAN)
+
+# kim 0.3.99
+* Added function(s) including pivot_table, outlier, 
+logistic_reg_w_interaction, pm, compare_dependent_rs,
+logistic_regression_table, logistic_regression, replace_values_in_dt,
+pretty_round_r, fisher_z_transform, z_to_r_transform, 
+weighted_z, weighted_mean_r, duplicated_values, tv, remove_from_vector,
+and combine_data_across_cols.
+* Fixed the error in function name(s): 
+chi_square_test_pairwise -> chi_squared_test_pairwise
+* Updated function(s) including clean_data_from_qualtrics,
+su, find_duplicates, scatterplot, chi_square_test_pairwise, 
+two_way_anova, pretty_round_p_value, combine_data_across_cols, 
+floodlight_2_by_continuous, remove_from_vector, and prep.
+* Fixed minor bugs
+
 # kim 0.3.13
 * In response to CRAN Team's review, the package title was edited.
 * In response to a new error message from CRAN check 
 (r-devel-windows-x86_64-gcc10-UCRT), most dependencies were removed.
-
 
 # kim 0.3.11
 * Removed dependencies on most packages. In previous versions of 

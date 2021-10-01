@@ -6,7 +6,7 @@
 #' @param na.rm logical. If \code{na.rm = TRUE}, NA values in the vector
 #' will be removed before searching for duplicates.
 #' If \code{na.rm = FALSE}, NA values will be included in the search
-#' as potentially duplicated values.
+#' as potentially duplicated values. By default, \code{na.rm = TRUE}.
 #' @param output type of output. If \code{output = "summary"}, the function's
 #' output will be a data.table summarizing duplicated values and
 #' their counts. If \code{output = "duplicated_values"}, the function's
@@ -56,7 +56,8 @@ find_duplicates <- function(
     value = c(as.character(dt1[count > 1, value]),
               "..non_duplicated_values"),
     count = c(dt1[count > 1, count], non_dup_total_count))
-  summary_dt[, percent := signif(count / total_count * 100, sigfigs)]
+  summary_dt[, percent := kim::round_flexibly(
+    count / total_count * 100, sigfigs)]
   # print summary
   print(summary_dt)
   cat("\n")

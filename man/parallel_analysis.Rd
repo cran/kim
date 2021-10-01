@@ -33,9 +33,10 @@ Alexis Dinno (2018),
 \url{https://cran.r-project.org/package=paran}
 }
 \examples{
+\donttest{
 parallel_analysis(
-  data = mtcars, names_of_vars = c("disp", "hp", "drat")
-)
+  data = mtcars, names_of_vars = c("disp", "hp", "drat"))
 # parallel_analysis(
 # data = mtcars, names_of_vars = c("carb", "vs", "gear", "am"))
+}
 }

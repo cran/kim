@@ -8,7 +8,9 @@ multiple_regression(
   data = NULL,
   formula = NULL,
   sigfigs = NULL,
-  round_digits_after_decimal = NULL
+  round_digits_after_decimal = NULL,
+  pretty_round_p_value = TRUE,
+  return_table_upper_half = FALSE
 )
 }
 \arguments{
@@ -20,6 +22,14 @@ multiple_regression(
 
 \item{round_digits_after_decimal}{round to nth digit after decimal
 (alternative to \code{sigfigs})}
+
+\item{pretty_round_p_value}{logical. Should the p-values be rounded
+in a pretty format (i.e., lower threshold: "<.001").
+By default, \code{pretty_round_p_value = TRUE}.}
+
+\item{return_table_upper_half}{logical. Should only the upper part
+of the table be returned?
+By default, \code{return_table_upper_half = FALSE}.}
 }
 \value{
 the output will be a data.table showing multiple regression
@@ -37,5 +47,7 @@ Stefan Behrendt (2014),
 \url{https://cran.r-project.org/package=lm.beta}
 }
 \examples{
+\donttest{
 multiple_regression(data = mtcars, formula = mpg ~ gear * cyl)
+}
 }

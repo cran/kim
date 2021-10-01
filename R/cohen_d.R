@@ -16,8 +16,10 @@
 #' @param ci_range range of the confidence interval for Cohen's d
 #' (default = 0.95)
 #' @examples
+#' \donttest{
 #' cohen_d(1:10, 3:12)
 #' cohen_d(data = mtcars, iv_name = "vs", dv_name = "mpg", ci_range = 0.99)
+#' }
 #' @export
 cohen_d <- function(
   sample_1 = NULL, sample_2 = NULL,

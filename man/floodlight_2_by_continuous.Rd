@@ -16,6 +16,9 @@ floodlight_2_by_continuous(
   jitter_y_percent = 0,
   dot_alpha = 0.5,
   dot_size = 4,
+  interaction_p_value_font_size = 6,
+  jn_point_font_size = 6,
+  plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
   legend_position = "right",
   reg_line_types = c("solid", "dashed"),
   jn_line_types = c("solid", "solid"),
@@ -57,6 +60,15 @@ range of y values#'}
 1 = completely opaque). By default, \code{dot_alpha = 0.5}}
 
 \item{dot_size}{size of the dots (default = 4)}
+
+\item{interaction_p_value_font_size}{font size for the interaction
+p value (default = 6)}
+
+\item{jn_point_font_size}{font size for Johnson-Neyman point labels
+(default = 6)}
+
+\item{plot_margin}{margin for the plot
+By default \code{plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt")}}
 
 \item{legend_position}{position of the legend (default = "right").
 If \code{legend_position = "none"}, the legend will be removed.}
@@ -111,9 +123,11 @@ Jacob A. Long (2019),
 \url{https://cran.r-project.org/package=interactions}
 }
 \examples{
+\donttest{
 floodlight_2_by_continuous(
 data = mtcars,
 iv_name = "am",
 dv_name = "mpg",
 mod_name = "qsec")
+}
 }

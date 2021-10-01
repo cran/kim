@@ -53,10 +53,11 @@
 #' \code{"robust_anova_post_hoc_contrast"}
 #' @return by default, the output will be \code{"anova_table"}
 #' @examples
+#' \donttest{
 #' two_way_anova(
 #'   data = mtcars, dv_name = "mpg", iv_1_name = "vs",
-#'   iv_2_name = "am", iterations = 100
-#' )
+#'   iv_2_name = "am", iterations = 100)
+#' }
 #' @export
 #' @import data.table
 two_way_anova <- function(
@@ -78,8 +79,10 @@ two_way_anova <- function(
   position_dodge = 0.13,
   legend_position = "right",
   output = NULL) {
+  # installed packages
+  installed_pkgs <- rownames(utils::installed.packages())
   # check if Package 'ggplot2' is installed
-  if (!"ggplot2" %in% rownames(utils::installed.packages())) {
+  if (!"ggplot2" %in% installed_pkgs) {
     message(paste0(
       "This function requires the installation of Package 'ggplot2'.",
       "\nTo install Package 'ggplot2', type ",
@@ -88,12 +91,9 @@ two_way_anova <- function(
       "for all\nfunctions in Package 'kim', type ",
       "'kim::install_all_dependencies()'"))
     return()
-  } else {
-    # proceed if Package 'ggplot2' is already installed
-    kim::prep("ggplot2")
   }
   # check if Package 'car' is installed
-  if (!"car" %in% rownames(utils::installed.packages())) {
+  if (!"car" %in% installed_pkgs) {
     message(paste0(
       "To conduct a two-way ANOVA, Package 'car' must ",
       "be installed.\nTo install Package 'car', type ",
@@ -112,7 +112,7 @@ two_way_anova <- function(
   # If robust == TRUE, check whether Package 'WRS2' is installed
   if (robust == TRUE) {
     # check if Package 'WRS2' is installed
-    if (!"WRS2" %in% rownames(utils::installed.packages())) {
+    if (!"WRS2" %in% installed_pkgs) {
       message(paste0(
         "To conduct floodlight analysis, Package 'WRS2' must ",
         "be installed.\nTo install Package 'WRS2', type ",
@@ -136,11 +136,11 @@ two_way_anova <- function(
     output <- "anova_table"
   }
   # convert data to data table
-  dt1 <- setDT(copy(data))
+  dt1 <- data.table::setDT(data.table::copy(data))
   dt1 <- dt1[, c(iv_1_name, iv_2_name, dv_name), with = FALSE]
   # convert iv to factors
   for (col in c(iv_1_name, iv_2_name)) {
-    set(dt1, j = col, value = as.factor(dt1[[col]]))
+    data.table::set(dt1, j = col, value = as.factor(dt1[[col]]))
   }
   # remove na
   dt2 <- stats::na.omit(dt1)
@@ -159,15 +159,14 @@ two_way_anova <- function(
   # stats by iv
   group_stats <- dt2[, list(
     n = .N,
-    mean = signif(mean(get(dv_name)), sigfigs),
-    median = as.numeric(stats::median(get(dv_name))),
-    sd = signif(stats::sd(get(dv_name)), sigfigs),
-    se = signif(kim::se_of_mean(get(dv_name)), sigfigs),
-    min = min(get(dv_name)),
-    max = max(get(dv_name))
-  ),
-  keyby = c(iv_1_name, iv_2_name)
-  ]
+    mean = kim::round_flexibly(mean(get(dv_name)), sigfigs),
+    median = kim::round_flexibly(
+      as.numeric(stats::median(get(dv_name))), sigfigs),
+    sd = kim::round_flexibly(stats::sd(get(dv_name)), sigfigs),
+    se = kim::round_flexibly(kim::se_of_mean(get(dv_name)), sigfigs),
+    min = kim::round_flexibly(min(get(dv_name)), sigfigs),
+    max = kim::round_flexibly(max(get(dv_name)), sigfigs)
+  ), keyby = c(iv_1_name, iv_2_name)]
   if (output == "group_stats") {
     return(group_stats)
   }
@@ -192,7 +191,7 @@ two_way_anova <- function(
     print(g1)
   }
   # order the data table
-  setorderv(dt2, c(iv_1_name, iv_2_name))
+  data.table::setorderv(dt2, c(iv_1_name, iv_2_name))
   # levene's test
   formula_1 <- stats::as.formula(
     paste0(dv_name, " ~ ", iv_1_name, " * ", iv_2_name)
@@ -214,12 +213,15 @@ two_way_anova <- function(
   model_1 <- stats::aov(formula = formula_1, data = dt2)
   anova_table <- anova_fn_from_car(model_1, type = 3)
   source <- row.names(anova_table)
-  setDT(anova_table)
-  anova_table <- data.table(source, anova_table)
+  data.table::setDT(anova_table)
+  anova_table <- data.table::data.table(source, anova_table)
   names(anova_table) <- c("source", "type_3_sum_sq", "df", "f", "p")
+  # round
   cols_to_round <- c("type_3_sum_sq", "f")
   for (j in cols_to_round) {
-    set(anova_table, j = j, value = signif(anova_table[[j]], sigfigs))
+    data.table::set(
+      anova_table, j = j, value = kim::round_flexibly(
+        anova_table[[j]], sigfigs))
   }
   anova_table[, p := kim::pretty_round_p_value(p)]
   message("\nANOVA Results:")
@@ -230,21 +232,15 @@ two_way_anova <- function(
   }
   if (robust == TRUE) {
     # robust anova
-    robust_anova_results <-
-      pbad2way_fn_from_wrs2(formula_1,
-                            data = dt2, est = "mom",
-                            nboot = iterations
-      )
+    robust_anova_results <- pbad2way_fn_from_wrs2(
+      formula_1, data = dt2, est = "mom", nboot = iterations)
     if (output == "robust_anova_results") {
       return(robust_anova_results)
     }
     message("\nRobust ANOVA Results:")
     print(robust_anova_results)
-    robust_anova_post_hoc_results <-
-      mcp2a_fn_from_wrs2(formula_1,
-                         data = dt2, est = "mom",
-                         nboot = iterations
-      )
+    robust_anova_post_hoc_results <- mcp2a_fn_from_wrs2(
+      formula_1, data = dt2, est = "mom", nboot = iterations)
     message("\nRobust ANOVA Post Hoc Test Results:")
     print(robust_anova_post_hoc_results)
     # contrasts

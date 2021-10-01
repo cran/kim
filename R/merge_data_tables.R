@@ -29,11 +29,25 @@
 #' b = 5:8,
 #' c = c("w", "x", "y", "z"))
 #' data_2 <- data.table::data.table(
-#' id_col = c(1, 4, 99),
-#' d = 6:8,
+#' id_col = c(1, 99, 4),
+#' e = 6:8,
 #' b = c("p", "q", "r"),
-#' e = c(TRUE, FALSE, FALSE))
+#' d = c(TRUE, FALSE, FALSE))
 #' merge_data_tables(dt1 = data_1, dt2 = data_2, id = "id_col")
+#' data_3 <- data.table::data.table(
+#' id_col = 99,
+#' a = "abc",
+#' b = TRUE,
+#' c = TRUE)
+#' # Note how the value of TRUE gets converted to 1 when merging in Column 'c'
+#' merge_data_tables(data_1, data_3, id = "id_col")
+#' data_4 <- data.table::data.table(
+#' id_col = c(5, 3),
+#' a = c("a", NA))
+#' data_5 <- data.table::data.table(
+#' id_col = 1,
+#' a = 2)
+#' merge_data_tables(data_4, data_5, id = "id_col")
 #' @import data.table
 #' @export
 merge_data_tables <- function(
@@ -53,60 +67,56 @@ merge_data_tables <- function(
     stop(paste0("Please enter an input for the ID column name, ",
                 'e.g., id = "subject_id".'))
   }
-  # coerce inputs into data tables if they are not already
-  if (!is.data.table(dt1)) {
-    dt1 <- setDT(dt1)
-  }
-  if (!is.data.table(dt2)) {
-    dt2 <- setDT(dt2)
-  }
+  # copy and coerce inputs into data tables
+  dt1c <- data.table::setDT(data.table::copy(dt1))
+  dt2c <- data.table::setDT(data.table::copy(dt2))
   # check if the id column is in both data tables
-  if (!id %in% names(dt1)) {
+  if (!id %in% names(dt1c)) {
     stop(paste0('The id column "', id, '" is not found in the first',
                 " data table, dt1."))
   }
-  if (!id %in% names(dt2)) {
+  if (!id %in% names(dt2c)) {
     stop(paste0('The id column "', id, '" is not found in the second',
                 " data table, dt2."))
   }
   # id values in each data table; replicate so that the order is preserved
-  dt1_id_values <- rep(dt1[[id]])
-  dt2_id_values <- rep(dt2[[id]])
+  dt1c_id_values <- rep(dt1c[[id]])
+  dt2c_id_values <- rep(dt2c[[id]])
   # id values in the final dt
-  id_in_final_dt <- union(dt1_id_values, dt2_id_values)
-  # id values unique in dt2
-  unique_id_in_dt2 <- setdiff(dt2_id_values, dt1_id_values)
+  id_in_final_dt <- union(dt1c_id_values, dt2c_id_values)
+  # id values unique in dt2c
+  unique_id_in_dt2c <- setdiff(dt2c_id_values, dt1c_id_values)
   # print duplicated id values
-  duplicated_id_values <- intersect(dt1_id_values, dt2_id_values)
+  duplicated_id_values <- intersect(dt1c_id_values, dt2c_id_values)
   if (silent == FALSE) {
     message(paste0("Number of duplicated ID values: ",
                    length(duplicated_id_values)))
   }
   # column names in each data table
-  dt1_col_names <- names(dt1)
-  dt2_col_names <- names(dt2)
+  dt1c_col_names <- names(dt1c)
+  dt2c_col_names <- names(dt2c)
   # column names in the final dt
-  col_names_in_final_dt <- union(dt1_col_names, dt2_col_names)
+  col_names_in_final_dt <- union(dt1c_col_names, dt2c_col_names)
   # names of non-ID columns that are in both data tables
   duplicated_col_names <- setdiff(
-    intersect(dt1_col_names, dt2_col_names), id)
+    intersect(dt1c_col_names, dt2c_col_names), id)
   # print duplicated column names
   if (silent == FALSE) {
     message(paste0("Number of duplicated column names: ",
                    length(duplicated_col_names)))
   }
   # set keys in each dt
-  setkeyv(dt1, id)
-  setkeyv(dt2, id)
+  data.table::setkeyv(dt1c, id)
+  data.table::setkeyv(dt2c, id)
   # merge data tables
-  merged_dt <- merge(dt1, dt2, all = TRUE)
+  merged_dt <- merge(dt1c, dt2c, all = TRUE, sort = FALSE)
   # merge duplicated columns
   if (length(duplicated_col_names) > 0) {
     merged_cols <- lapply(duplicated_col_names, function(x) {
-      dt1_rows <- merged_dt[[id]] %in% dt1_id_values
-      v1 <- merged_dt[[paste0(x, ".x")]][dt1_rows]
-      dt2_rows <- merged_dt[[id]] %in% unique_id_in_dt2
-      v2 <- merged_dt[[paste0(x, ".y")]][dt2_rows]
+      dt1c_rows <- merged_dt[[id]] %in% dt1c_id_values
+      v1 <- merged_dt[[paste0(x, ".x")]][dt1c_rows]
+      dt2c_rows <- merged_dt[[id]] %in% unique_id_in_dt2c
+      v2 <- merged_dt[[paste0(x, ".y")]][dt2c_rows]
       output <- c(v1, v2)
       return(output)
     })
@@ -116,16 +126,18 @@ merge_data_tables <- function(
     # with the newly created merged columns
     cols_to_replace <- paste0(duplicated_col_names, ".x")
     for (col in cols_to_replace) {
-      set(merged_dt, j = col,
-          value = merged_cols[[gsub("\\.x$", "", col)]])
+      data.table::set(
+        merged_dt, j = col,
+        value = merged_cols[[gsub("\\.x$", "", col)]])
     }
     # remove the second set of duplicated columns (those with suffix ".y")
     cols_to_remove <- paste0(duplicated_col_names, ".y")
     merged_dt[, (cols_to_remove) := NULL]
-    setnames(merged_dt, old = cols_to_replace, duplicated_col_names)
+    data.table::setnames(
+      merged_dt, old = cols_to_replace, duplicated_col_names)
   }
   # restore the original order of rows
-  output <- order_rows_specifically_in_dt(
+  output <- kim::order_rows_specifically_in_dt(
     dt = merged_dt,
     col_to_order_by = id,
     specific_order = id_in_final_dt)

@@ -11,12 +11,17 @@ scatterplot(
   point_label_var_name = NULL,
   weight_var_name = NULL,
   alpha = 1,
-  annotate_stats = FALSE,
+  annotate_stats = TRUE,
   annotate_y_pos = 5,
+  annotated_stats_color = "green4",
+  annotated_stats_font_size = 6,
+  annotated_stats_font_face = "bold",
   line_of_fit_type = "lm",
   ci_for_line_of_fit = FALSE,
+  line_of_fit_color = "blue",
   x_axis_label = NULL,
   y_axis_label = NULL,
+  point_size = 2,
   point_label_size = NULL,
   point_size_range = c(3, 12),
   jitter_x_percent = 0,
@@ -42,7 +47,7 @@ the line of fit}
 1 = completely opaque)}
 
 \item{annotate_stats}{if \code{TRUE}, the correlation and p-value will
-be annotated at the top of the plot}
+be annotated at the top of the plot (default = TRUE)}
 
 \item{annotate_y_pos}{position of the annotated stats, expressed
 as a percentage of the range of y values by which the annotated
@@ -52,6 +57,15 @@ maximum y values in the data set are 0 and 100, respectively,
 the annotated stats will be placed at 5\% of the y range (100 - 0)
 above the maximum y value, y = 0.05 * (100 - 0) + 100 = 105.}
 
+\item{annotated_stats_color}{color of the annotated stats
+(default = "green4").}
+
+\item{annotated_stats_font_size}{font size of the annotated stats
+(default = 6).}
+
+\item{annotated_stats_font_face}{font face of the annotated stats
+(default = "bold").}
+
 \item{line_of_fit_type}{if \code{line_of_fit_type = "lm"}, a regression
 line will be fit; if \code{line_of_fit_type = "loess"}, a local
 regression line will be fit; if \code{line_of_fit_type = "none"},
@@ -60,9 +74,13 @@ no line will be fit}
 \item{ci_for_line_of_fit}{if \code{ci_for_line_of_fit = TRUE},
 confidence interval for the line of fit will be shaded}
 
+\item{line_of_fit_color}{color of the line of fit (default = "blue")}
+
 \item{x_axis_label}{alternative label for the x axis}
 
 \item{y_axis_label}{alternative label for the y axis}
+
+\item{point_size}{size of the dots on the plot (default = 2)}
 
 \item{point_label_size}{size for dots' labels on the plot. If no
 input is entered for this argument, it will be set as
