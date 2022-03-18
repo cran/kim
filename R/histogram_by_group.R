@@ -19,6 +19,21 @@
 #' (minimum = 0, maximum = 1, default = 0.15)
 #' @param draw_baseline logical. Should the baseline and the trailing
 #' lines to either side of the histogram be drawn? (default = FALSE)
+#' @param xlab title of the x-axis for the histogram by group.
+#' If \code{xlab = FALSE}, the title will be removed. By default
+#' (i.e., if no input is given), \code{dv_name} will be used as
+#' the title.
+#' @param ylab title of the y-axis for the histogram by group.
+#' If \code{ylab = FALSE}, the title will be removed. By default
+#' (i.e., if no input is given), \code{iv_name} will be used as
+#' the title.
+#' @param x_limits a numeric vector with values of the endpoints
+#' of the x axis.
+#' @param x_breaks a numeric vector indicating the points at which to
+#' place tick marks on the x axis.
+#' @param x_labels a vector containing labels for the place tick marks
+#' on the x axis.
+#' @param sigfigs number of significant digits to round to (default = 3)
 #' @return the output will be a set of vertically arranged histograms
 #' (a ggplot object), i.e., one histogram for each level of the
 #' independent variable.
@@ -31,7 +46,8 @@
 #'   space_between_histograms = 0.5
 #' )
 #' histogram_by_group(
-#' data = iris, iv_name = "Species", dv_name = "Sepal.Length")
+#' data = iris, iv_name = "Species", dv_name = "Sepal.Length", x_breaks = 4:8,
+#' x_limits = c(4, 8))
 #' }
 #' @export
 #' @import data.table
@@ -42,7 +58,13 @@ histogram_by_group <- function(
   order_of_groups_top_to_bot = NULL,
   number_of_bins = 40,
   space_between_histograms = 0.15,
-  draw_baseline = FALSE) {
+  draw_baseline = FALSE,
+  xlab = NULL,
+  ylab = NULL,
+  x_limits = NULL,
+  x_breaks = NULL,
+  x_labels = NULL,
+  sigfigs = 3) {
   # installed packages
   installed_pkgs <- rownames(utils::installed.packages())
   # check if Package 'ggplot2' is installed
@@ -133,6 +155,26 @@ histogram_by_group <- function(
     labels = y_tick_mark_labels
   )
   g1 <- g1 + ggplot2::scale_x_continuous(expand = c(0, 0))
+  # change tick marks and their labels
+  if (!is.null(x_breaks) & !is.null(x_labels)) {
+    suppressMessages(
+      g1 <- g1 + ggplot2::scale_x_continuous(
+        breaks = x_breaks, labels = x_labels))
+  } else if (!is.null(x_breaks) & is.null(x_labels)) {
+    suppressMessages(
+      g1 <- g1 + ggplot2::scale_x_continuous(
+        breaks = x_breaks, labels = x_breaks))
+  } else if (is.null(x_breaks) & !is.null(x_labels)) {
+    # deal w missing inputs
+    stop("Please also provide an input for `x_breaks`.")
+  }
+  # adjust the x axis
+  if (!is.null(x_limits)) {
+    suppressMessages(
+      g1 <- g1 + ggplot2::scale_x_continuous(
+        limits = x_limits))
+  }
+  # return to building the plot
   g1 <- g1 + ggplot2::theme_classic(base_size = 16) +
     ggplot2::theme(
       plot.title = ggplot2::element_text(hjust = 0.5),
@@ -149,13 +191,37 @@ histogram_by_group <- function(
       legend.position = "none"
     )
   g1 <- g1 + ggplot2::coord_cartesian(clip = "off")
-  g1 <- g1 + ggplot2::xlab(dv_name)
-  g1 <- g1 + ggplot2::ylab(iv_name)
+  # axis titles
+  if (is.null(xlab)) {
+    g1 <- g1 + ggplot2::xlab(dv_name)
+  } else if (xlab == FALSE) {
+    g1 <- g1 + ggplot2::theme(axis.title.x = ggplot2::element_blank())
+  } else {
+    g1 <- g1 + ggplot2::xlab(xlab)
+  }
+  if (is.null(ylab)) {
+    g1 <- g1 + ggplot2::ylab(iv_name)
+  } else if (ylab == FALSE) {
+    g1 <- g1 + ggplot2::theme(axis.title.y = ggplot2::element_blank())
+  } else {
+    g1 <- g1 + ggplot2::ylab(ylab)
+  }
+  # annotate mean dots
   g1 <- g1 + ggplot2::geom_point(
     data = stats_by_iv, ggplot2::aes(
       x = stats_by_iv$mean, y = stats_by_iv$iv
     ), size = 4
   )
+  # annotate mean values
+  g1 <- g1 + ggplot2::geom_text(
+    data = stats_by_iv,
+    ggplot2::aes(
+      x = stats_by_iv$mean, y = stats_by_iv$iv,
+      label = paste0(
+        "M = ", signif(stats_by_iv$mean, digits = sigfigs)),
+      fontface = 2
+    ), vjust = 3)
+  # annotate error bars
   g1 <- g1 + ggplot2::geom_errorbarh(
     data = stats_by_iv,
     ggplot2::aes(
@@ -168,9 +234,11 @@ histogram_by_group <- function(
   g1 <- g1 + ggplot2::geom_text(
     data = stats_by_iv,
     ggplot2::aes(
-      x = stats_by_iv$median, y = stats_by_iv$iv, label = "Mdn\nX",
+      x = stats_by_iv$median, y = stats_by_iv$iv,
+      label = paste0(
+        "Mdn = ", signif(stats_by_iv$median, digits = sigfigs),
+        "\nX"),
       fontface = 2
-    ), vjust = -0.5
-  )
+    ), vjust = -0.7)
   return(g1)
 }

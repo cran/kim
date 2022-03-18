@@ -7,16 +7,25 @@
 multiple_regression(
   data = NULL,
   formula = NULL,
+  vars_to_mean_center = NULL,
   sigfigs = NULL,
   round_digits_after_decimal = NULL,
   pretty_round_p_value = TRUE,
-  return_table_upper_half = FALSE
+  return_table_upper_half = FALSE,
+  round_r_squared = 3,
+  round_f_stat = 2,
+  prettify_reg_table_col_names = TRUE,
+  silent = FALSE
 )
 }
 \arguments{
 \item{data}{a data object (a data frame or a data.table)}
 
 \item{formula}{a formula object for the regression equation}
+
+\item{vars_to_mean_center}{a character vector specifying names
+of variables that will be mean-centered before the regression model
+is estimated}
 
 \item{sigfigs}{number of significant digits to round to}
 
@@ -30,6 +39,20 @@ By default, \code{pretty_round_p_value = TRUE}.}
 \item{return_table_upper_half}{logical. Should only the upper part
 of the table be returned?
 By default, \code{return_table_upper_half = FALSE}.}
+
+\item{round_r_squared}{number of digits after the decimal both r-squared
+and adjusted r-squared values should be rounded to (default 3)}
+
+\item{round_f_stat}{number of digits after the decimal the f statistic
+of the regression model should be rounded to (default 2)}
+
+\item{prettify_reg_table_col_names}{logical. Should the column names
+of the regression table be made pretty (e.g., change "std_beta" to
+"Std. Beta")? (Default = \code{TRUE})}
+
+\item{silent}{If \code{silent = FALSE}, a message regarding
+mean-centered variables will be printed. If \code{silent = TRUE},
+this message will be suppressed. By default, \code{silent = FALSE}.}
 }
 \value{
 the output will be a data.table showing multiple regression
@@ -49,5 +72,8 @@ Stefan Behrendt (2014),
 \examples{
 \donttest{
 multiple_regression(data = mtcars, formula = mpg ~ gear * cyl)
+multiple_regression(
+data = mtcars, formula = mpg ~ gear * cyl,
+vars_to_mean_center = "gear")
 }
 }

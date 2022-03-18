@@ -8,6 +8,7 @@ desc_stats_by_group(
   data = NULL,
   var_for_stats = NULL,
   grouping_vars = NULL,
+  stats = "all",
   sigfigs = NULL,
   cols_to_round = NULL
 )
@@ -19,6 +20,16 @@ desc_stats_by_group(
 statistics will be calculated}
 
 \item{grouping_vars}{name(s) of grouping variables}
+
+\item{stats}{statistics to calculate. If \code{stats = "basic"},
+group size, mean, standard deviation, median, minimum, and maximum will
+be calculated. If \code{stats = "all"}, in addition to the
+aforementioned statistics, standard error, 95\% confidence and
+prediction intervals, skewness, and kurtosis will also be calculated.
+The \code{stats} argument can also be a character vector with types of
+statistics to calculate. For example, entering
+\code{stats = c("mean", "median")} will calculate mean and median.
+By default, \code{stats = "all"}}
 
 \item{sigfigs}{number of significant digits to round to}
 
@@ -34,4 +45,14 @@ Returns descriptive statistics by group
 \examples{
 desc_stats_by_group(data = mtcars, var_for_stats = "mpg",
 grouping_vars = c("vs", "am"))
+desc_stats_by_group(data = mtcars, var_for_stats = "mpg",
+grouping_vars = c("vs", "am"), sigfigs = 3)
+desc_stats_by_group(data = mtcars, var_for_stats = "mpg",
+grouping_vars = c("vs", "am"), stats = "basic", sigfigs = 2)
+desc_stats_by_group(data = mtcars, var_for_stats = "mpg",
+grouping_vars = c("vs", "am"), stats = "basic", sigfigs = 2,
+cols_to_round = "all")
+desc_stats_by_group(data = mtcars, var_for_stats = "mpg",
+grouping_vars = c("vs", "am"), stats = c("mean", "median"), sigfigs = 2,
+cols_to_round = "all")
 }

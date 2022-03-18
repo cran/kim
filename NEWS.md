@@ -1,3 +1,27 @@
+# kim 0.5.3
+* Highlights: addition of und, repeated_measures_anova
+* Added the following function(s): vlookup, convert_cols_to_numeric,
+convert_to_excel_formula, spotlight_2_by_continuous,
+compare_independent_rs, spotlight_overlaid, forest_plot,
+noncentrality_parameter, compare_effect_sizes, bracket, und, p0,
+cohen_d_over_n
+* Updated the following function(s) (and other functions that use them): 
+chi_squared_test_pairwise, compare_groups, desc_stats_by_group, 
+histogram_by_group, id_across_datasets, multiple_regression,
+replace_values_in_dt, tv, weighted_mean_r, spotlight_2_by_continuous,
+cohen_d, scatterplot, regex_match, t_test_pairwise
+* Fixed bugs or errors in the following functions (and other functions
+that use them): round_flexibly, outlier, multiple_regression, 
+pretty_round_p_value, logistic_regression, spotlight_2_by_continuous,
+id_across_datasets
+* Critical improvement in the following functions (and other functions
+that use them): scatterplot
+* Undocumented functions added (see the function `und`): outlier_rm,
+round_t0
+
+# kim 0.4.22
+* Added function(s) including simple_effects_analysis.
+
 # kim 0.4.21
 * Fixed a critical error with the function merge_data_tables and
 merge_data_table_list

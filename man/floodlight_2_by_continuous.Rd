@@ -9,6 +9,7 @@ floodlight_2_by_continuous(
   iv_name = NULL,
   dv_name = NULL,
   mod_name = NULL,
+  covariate_name = NULL,
   interaction_p_include = TRUE,
   iv_level_order = NULL,
   output = "reg_lines_plot",
@@ -18,6 +19,7 @@ floodlight_2_by_continuous(
   dot_size = 4,
   interaction_p_value_font_size = 6,
   jn_point_font_size = 6,
+  jn_point_label_hjust = NULL,
   plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
   legend_position = "right",
   reg_line_types = c("solid", "dashed"),
@@ -29,7 +31,9 @@ floodlight_2_by_continuous(
   x_axis_title = NULL,
   y_axis_title = NULL,
   legend_title = NULL,
-  round_decimals_int_p_value = 3
+  round_decimals_int_p_value = 3,
+  line_of_fit_size = 1,
+  round_jn_point_labels = 2
 )
 }
 \arguments{
@@ -40,6 +44,8 @@ floodlight_2_by_continuous(
 \item{dv_name}{name of the dependent variable}
 
 \item{mod_name}{name of the continuous moderator variable}
+
+\item{covariate_name}{name of the variables to control for}
 
 \item{interaction_p_include}{logical. Should the plot include a
 p-value for the interaction term?}
@@ -66,6 +72,10 @@ p value (default = 6)}
 
 \item{jn_point_font_size}{font size for Johnson-Neyman point labels
 (default = 6)}
+
+\item{jn_point_label_hjust}{a vector of hjust values for
+Johnson-Neyman point labels. By default, the hjust value will be 0.5 for
+all the points.}
 
 \item{plot_margin}{margin for the plot
 By default \code{plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt")}}
@@ -112,6 +122,11 @@ be removed.}
 \item{round_decimals_int_p_value}{To how many digits after the
 decimal point should the p value for the interaction term be
 rounded? (default = 3)}
+
+\item{line_of_fit_size}{thickness of the lines of fit (default = 1)}
+
+\item{round_jn_point_labels}{To how many digits after the
+decimal point should the jn point labels be rounded? (default = 2)}
 }
 \description{
 Conduct a floodlight analysis for 2 x Continuous design.
@@ -119,8 +134,11 @@ Conduct a floodlight analysis for 2 x Continuous design.
 \details{
 The following package(s) must be installed prior to running this function:
 Package 'interactions' v1.1.1 (or possibly a higher version) by
-Jacob A. Long (2019),
+Jacob A. Long (2020),
 \url{https://cran.r-project.org/package=interactions}
+See the following references
+Spiller et al. (2013) doi:10.1509/jmr.12.0420.
+Kim (2021) \doi{10.5281/zenodo.4445388}
 }
 \examples{
 \donttest{
@@ -129,5 +147,12 @@ data = mtcars,
 iv_name = "am",
 dv_name = "mpg",
 mod_name = "qsec")
+# add covariates
+floodlight_2_by_continuous(
+data = mtcars,
+iv_name = "am",
+dv_name = "mpg",
+mod_name = "qsec",
+covariate_name = c("cyl", "hp"))
 }
 }

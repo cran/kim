@@ -8,7 +8,7 @@ scatterplot(
   data = NULL,
   x_var_name = NULL,
   y_var_name = NULL,
-  point_label_var_name = NULL,
+  dot_label_var_name = NULL,
   weight_var_name = NULL,
   alpha = 1,
   annotate_stats = TRUE,
@@ -19,14 +19,16 @@ scatterplot(
   line_of_fit_type = "lm",
   ci_for_line_of_fit = FALSE,
   line_of_fit_color = "blue",
+  dot_color = "black",
   x_axis_label = NULL,
   y_axis_label = NULL,
-  point_size = 2,
-  point_label_size = NULL,
-  point_size_range = c(3, 12),
+  dot_size = 2,
+  dot_label_size = NULL,
+  dot_size_range = c(3, 12),
   jitter_x_percent = 0,
   jitter_y_percent = 0,
-  cap_axis_lines = FALSE
+  cap_axis_lines = FALSE,
+  color_dots_by = NULL
 )
 }
 \arguments{
@@ -36,7 +38,7 @@ scatterplot(
 
 \item{y_var_name}{name of the variable that will go on the y axis}
 
-\item{point_label_var_name}{name of the variable that will be used to
+\item{dot_label_var_name}{name of the variable that will be used to
 label individual observations}
 
 \item{weight_var_name}{name of the variable by which to weight
@@ -76,19 +78,21 @@ confidence interval for the line of fit will be shaded}
 
 \item{line_of_fit_color}{color of the line of fit (default = "blue")}
 
+\item{dot_color}{color of the dots (default = "black")}
+
 \item{x_axis_label}{alternative label for the x axis}
 
 \item{y_axis_label}{alternative label for the y axis}
 
-\item{point_size}{size of the dots on the plot (default = 2)}
+\item{dot_size}{size of the dots on the plot (default = 2)}
 
-\item{point_label_size}{size for dots' labels on the plot. If no
+\item{dot_label_size}{size for dots' labels on the plot. If no
 input is entered for this argument, it will be set as
-\code{point_label_size = 5} by default. If the plot is to be
+\code{dot_label_size = 5} by default. If the plot is to be
 weighted by some variable, this argument will be ignored, and
-dot sizes will be determined by the argument \code{point_size_range}}
+dot sizes will be determined by the argument \code{dot_size_range}}
 
-\item{point_size_range}{minimum and maximum size for dots
+\item{dot_size_range}{minimum and maximum size for dots
 on the plot when they are weighted}
 
 \item{jitter_x_percent}{horizontally jitter dots by a percentage of the
@@ -99,6 +103,9 @@ range of y values}
 
 \item{cap_axis_lines}{logical. Should the axis lines be capped at the
 outer tick marks? (default = TRUE)}
+
+\item{color_dots_by}{name of the variable that will determine
+colors of the dots}
 }
 \value{
 the output will be a scatter plot, a ggplot object.
@@ -114,17 +121,15 @@ John Pasek (2018),
 \url{https://cran.r-project.org/package=weights}
 }
 \examples{
-\donttest{
+\dontrun{
 scatterplot(data = mtcars, x_var_name = "wt", y_var_name = "mpg")
 scatterplot(
   data = mtcars, x_var_name = "wt", y_var_name = "mpg",
-  point_label_var_name = "hp", weight_var_name = "drat",
-  annotate_stats = TRUE
-)
+  dot_label_var_name = "hp", weight_var_name = "drat",
+  annotate_stats = TRUE)
 scatterplot(
   data = mtcars, x_var_name = "wt", y_var_name = "mpg",
-  point_label_var_name = "hp", weight_var_name = "cyl",
-  point_label_size = 7, annotate_stats = TRUE
-)
+  dot_label_var_name = "hp", weight_var_name = "cyl",
+  dot_label_size = 7, annotate_stats = TRUE)
 }
 }

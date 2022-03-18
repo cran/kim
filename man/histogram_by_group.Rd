@@ -11,7 +11,13 @@ histogram_by_group(
   order_of_groups_top_to_bot = NULL,
   number_of_bins = 40,
   space_between_histograms = 0.15,
-  draw_baseline = FALSE
+  draw_baseline = FALSE,
+  xlab = NULL,
+  ylab = NULL,
+  x_limits = NULL,
+  x_breaks = NULL,
+  x_labels = NULL,
+  sigfigs = 3
 )
 }
 \arguments{
@@ -33,6 +39,27 @@ remove the group in the set of histograms.}
 
 \item{draw_baseline}{logical. Should the baseline and the trailing
 lines to either side of the histogram be drawn? (default = FALSE)}
+
+\item{xlab}{title of the x-axis for the histogram by group.
+If \code{xlab = FALSE}, the title will be removed. By default
+(i.e., if no input is given), \code{dv_name} will be used as
+the title.}
+
+\item{ylab}{title of the y-axis for the histogram by group.
+If \code{ylab = FALSE}, the title will be removed. By default
+(i.e., if no input is given), \code{iv_name} will be used as
+the title.}
+
+\item{x_limits}{a numeric vector with values of the endpoints
+of the x axis.}
+
+\item{x_breaks}{a numeric vector indicating the points at which to
+place tick marks on the x axis.}
+
+\item{x_labels}{a vector containing labels for the place tick marks
+on the x axis.}
+
+\item{sigfigs}{number of significant digits to round to (default = 3)}
 }
 \value{
 the output will be a set of vertically arranged histograms
@@ -57,6 +84,7 @@ histogram_by_group(
   space_between_histograms = 0.5
 )
 histogram_by_group(
-data = iris, iv_name = "Species", dv_name = "Sepal.Length")
+data = iris, iv_name = "Species", dv_name = "Sepal.Length", x_breaks = 4:8,
+x_limits = c(4, 8))
 }
 }
