@@ -1,3 +1,24 @@
+# kim 0.5.55
+* Highlights:
+* The package title was changed from 
+"Behavioral Scientists' Analysis Toolkit" to 
+"A Toolkit for Behavioral Scientists"
+* Added the following function(s): loglinear_analysis, identical_all,
+akaike_weights, modes_of_objects, check_modes, overlapping_interval,
+standardized_regression
+* Updated the following function(s) (and other functions that use them): 
+forest_plot, t_test_pairwise, compare_groups, regex_match,
+install_all_dependencies, compare_datasets, read_csv,
+floodlight_2_by_continuous, parallel_analysis, ggsave_quick,
+akaike_weights, scatterplot, spotlight_2_by_continuous
+* Fixed bugs or errors in the following functions (and other functions
+that use them): repeated_measures_anova, mann_whitney,
+compare_datasets, compare_groups
+* Critical improvement in the following functions (and other functions
+that use them): 
+* Undocumented functions added (see the function `und`): 
+compare_strings, list_functions, mad_rm
+
 # kim 0.5.3
 * Highlights: addition of und, repeated_measures_anova
 * Added the following function(s): vlookup, convert_cols_to_numeric,

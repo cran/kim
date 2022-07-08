@@ -16,6 +16,7 @@ compare_groups(
   mann_whitney = TRUE,
   t_test_stats = FALSE,
   t_test_df_decimals = 1,
+  round_p = 3,
   save_as_png = FALSE,
   png_name = NULL,
   xlab = NULL,
@@ -71,6 +72,9 @@ data.table.}
 
 \item{t_test_df_decimals}{number of decimals for the degrees of freedom
 in t-tests (default = 1)}
+
+\item{round_p}{number of decimal places to which to round
+p-values (default = 3)}
 
 \item{save_as_png}{if \code{save = "all"} or if \code{save = TRUE},
 the histogram by group, descriptive statistics by group,

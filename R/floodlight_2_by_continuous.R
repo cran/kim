@@ -6,7 +6,7 @@
 #' Package 'interactions' v1.1.1 (or possibly a higher version) by
 #' Jacob A. Long (2020),
 #' <https://cran.r-project.org/package=interactions>
-#' See the following references
+#' See the following references:
 #' Spiller et al. (2013) doi:10.1509/jmr.12.0420.
 #' Kim (2021) \doi{10.5281/zenodo.4445388}
 #'
@@ -21,10 +21,12 @@
 #' variable for legend. By default, it will be set as levels of the
 #' independent variable ordered using R's base function \code{sort}.
 #' @param output type of output (default = "reg_lines_plot").
+#' Possible inputs: "interactions_pkg_results", "simple_effects_plot",
+#' "jn_points", "reg_lines_plot"
 #' @param jitter_x_percent horizontally jitter dots by a percentage of the
 #' range of x values
 #' @param jitter_y_percent vertically jitter dots by a percentage of the
-#' range of y values#'
+#' range of y values
 #' @param dot_alpha opacity of the dots (0 = completely transparent,
 #' 1 = completely opaque). By default, \code{dot_alpha = 0.5}
 #' @param dot_size size of the dots (default = 4)
@@ -90,35 +92,35 @@
 #' @export
 #' @import data.table
 floodlight_2_by_continuous <- function(
-  data = NULL,
-  iv_name = NULL,
-  dv_name = NULL,
-  mod_name = NULL,
-  covariate_name = NULL,
-  interaction_p_include = TRUE,
-  iv_level_order = NULL,
-  output = "reg_lines_plot",
-  jitter_x_percent = 0,
-  jitter_y_percent = 0,
-  dot_alpha = 0.5,
-  dot_size = 4,
-  interaction_p_value_font_size = 6,
-  jn_point_font_size = 6,
-  jn_point_label_hjust = NULL,
-  plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
-  legend_position = "right",
-  reg_line_types = c("solid", "dashed"),
-  jn_line_types = c("solid", "solid"),
-  sig_region_color = "green",
-  sig_region_alpha = 0.08,
-  nonsig_region_color = "gray",
-  nonsig_region_alpha = 0.08,
-  x_axis_title = NULL,
-  y_axis_title = NULL,
-  legend_title = NULL,
-  round_decimals_int_p_value = 3,
-  line_of_fit_size = 1,
-  round_jn_point_labels = 2
+    data = NULL,
+    iv_name = NULL,
+    dv_name = NULL,
+    mod_name = NULL,
+    covariate_name = NULL,
+    interaction_p_include = TRUE,
+    iv_level_order = NULL,
+    output = "reg_lines_plot",
+    jitter_x_percent = 0,
+    jitter_y_percent = 0,
+    dot_alpha = 0.5,
+    dot_size = 4,
+    interaction_p_value_font_size = 6,
+    jn_point_font_size = 6,
+    jn_point_label_hjust = NULL,
+    plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
+    legend_position = "right",
+    reg_line_types = c("solid", "dashed"),
+    jn_line_types = c("solid", "solid"),
+    sig_region_color = "green",
+    sig_region_alpha = 0.08,
+    nonsig_region_color = "gray",
+    nonsig_region_alpha = 0.08,
+    x_axis_title = NULL,
+    y_axis_title = NULL,
+    legend_title = NULL,
+    round_decimals_int_p_value = 3,
+    line_of_fit_size = 1,
+    round_jn_point_labels = 2
 ) {
   # installed packages
   installed_pkgs <- rownames(utils::installed.packages())
@@ -162,9 +164,15 @@ floodlight_2_by_continuous <- function(
   dv <- iv <- iv_binary <- iv_factor <- mod <- NULL
   # convert to data.table
   dt <- data.table::setDT(data.table::copy(data))
+  # columns to remove
+  cols_to_remove <- setdiff(names(dt), c(
+    iv_name, dv_name, mod_name, covariate_name))
+  # remove columns not needed for analysis
+  if (length(cols_to_remove) > 0) {
+    dt[, (cols_to_remove) := NULL]
+  }
   # remove rows with na
-  dt <- stats::na.omit(dt[, setdiff(names(dt), c(
-    iv_name, dv_name, mod_name, covariate_name)) := NULL])
+  dt <- stats::na.omit(dt)
   # order and rename columns
   data.table::setcolorder(dt, c(
     iv_name, dv_name, mod_name, covariate_name))
@@ -223,12 +231,52 @@ floodlight_2_by_continuous <- function(
   } else {
     lm_formula <- dv ~ iv_binary * mod
   }
-  # jn points
+  # find jn points
   johnson_neyman_result <- jn_fn_from_interactions(
     stats::lm(formula = lm_formula, data = dt),
     pred = iv_binary,
     modx = mod)
+  # return the results from the interactions package
+  if (output == "interactions_pkg_results") {
+    return(johnson_neyman_result)
+  }
+  # get jn points
   jn_points <- johnson_neyman_result[["bounds"]]
+  # return jn points
+  if (output == "jn_points") {
+    return(jn_points)
+  }
+  # if there are more than 2 jn points, throw an error
+  if (length(jn_points) > 2) {
+    message(paste0(
+      "An internal computation suggests that there are more than\n",
+      "two Johnson-Neyman points. Whether or not this is theoretically\n",
+      "possible, the current version of the function cannot proceed\n",
+      "with more than two Johnson-Neyman points."))
+    return()
+  }
+  # is the significant region inside or outside
+  sig_inside_vs_outside <- ifelse(
+    attributes(johnson_neyman_result)$inside, "inside", "outside")
+  # min and max of observed mod
+  mod_min_observed <- min(dt[, mod])
+  mod_max_observed <- max(dt[, mod])
+  # find the overlapping regions
+  if (sig_inside_vs_outside == "inside") {
+    sig_region <- list(overlapping_interval(
+      mod_min_observed, mod_max_observed,
+      jn_points[["Lower"]], jn_points[["Higher"]]))
+  } else if (sig_inside_vs_outside == "outside") {
+    sig_region <- list(
+      overlapping_interval(
+        mod_min_observed, mod_max_observed,
+        -Inf, jn_points[["Lower"]]),
+      overlapping_interval(
+        mod_min_observed, mod_max_observed,
+        jn_points[["Higher"]], Inf))
+  }
+  # shade the following regions
+  sig_region <- Filter(Negate(is.null), sig_region)
   # plot simple effects at values of moderator
   if (output == "simple_effects_plot") {
     g1 <- johnson_neyman_result[["plot"]]
@@ -245,9 +293,10 @@ floodlight_2_by_continuous <- function(
   # plot
   g1 <- ggplot2::ggplot(
     data = dt,
-    ggplot2::aes(x = mod, y = dv,
-                 color = iv_factor,
-                 linetype = iv_factor))
+    ggplot2::aes(
+      x = mod, y = dv,
+      color = iv_factor,
+      linetype = iv_factor))
   # plot points but make them transparent if covariates are used
   if (!is.null(covariate_name)) {
     dot_alpha <- 0
@@ -289,16 +338,6 @@ floodlight_2_by_continuous <- function(
       color = "black",
       size = interaction_p_value_font_size)
   }
-  # positions of the lines marking johnson neyman points
-  jn_line_pos <- jn_points
-  mod_min_observed <- min(dt[, mod])
-  mod_max_observed <- max(dt[, mod])
-  if (jn_line_pos[["Lower"]] < mod_min_observed) {
-    jn_line_pos[["Lower"]] <- -Inf
-  }
-  if (jn_line_pos[["Higher"]] > mod_max_observed) {
-    jn_line_pos[["Higher"]] <- Inf
-  }
   # apply the theme beforehand
   g1 <- g1 + kim::theme_kim(legend_position = legend_position)
   # allow labeling outside the plot area
@@ -307,72 +346,39 @@ floodlight_2_by_continuous <- function(
     plot.margin = plot_margin)
   # if only one type is entered for jn line
   if (length(jn_line_types) == 1) {
-    jn_line_types <- rep(jn_line_types, sum(is.finite(jn_line_pos)))
+    jn_line_types <- rep(jn_line_types, length(unlist(sig_region)))
   }
   # add a vertical line and label for each jn point
-  for(i in which(is.finite(jn_line_pos))) {
-    # i <- 2
-    # vertical line
-    g1 <- g1 + ggplot2::geom_vline(
-      xintercept = jn_line_pos[i],
-      linetype = jn_line_types[i],
-      size = 1)
-    # label jn points
-    if (is.null(jn_point_label_hjust)) {
-      jn_point_label_hjust <- rep(0.5, length(jn_line_pos))
+  if (length(sig_region) > 0) {
+    for (i in seq_along(sig_region)) {
+      # range of the sig region
+      temp_range <- sig_region[[i]]
+      # shade the sig region
+      g1 <- g1 + ggplot2::annotate(
+        "rect", xmin = temp_range[1], xmax = temp_range[2],
+        ymin = -Inf, ymax = Inf,
+        alpha = sig_region_alpha, fill = sig_region_color)
+      for (j in seq_along(temp_range)) {
+        # vertical line
+        g1 <- g1 + ggplot2::geom_vline(
+          xintercept = temp_range[j],
+          linetype = jn_line_types[j],
+          size = 1)
+        # label jn points
+        if (is.null(jn_point_label_hjust)) {
+          jn_point_label_hjust <- rep(0.5, length(temp_range))
+        }
+        g1 <- g1 + ggplot2::annotate(
+          geom = "text",
+          x = temp_range[j],
+          y = Inf,
+          label = round(temp_range[j], round_jn_point_labels),
+          hjust = jn_point_label_hjust[i], vjust = -0.5,
+          fontface = "bold",
+          color = "black",
+          size = jn_point_font_size)
+      }
     }
-    g1 <- g1 + ggplot2::annotate(
-      geom = "text",
-      x = jn_line_pos[i],
-      y = Inf,
-      label = round(jn_line_pos[i], round_jn_point_labels),
-      hjust = jn_point_label_hjust[i], vjust = -0.5,
-      fontface = "bold",
-      color = "black",
-      size = jn_point_font_size)
-  }
-  # shade
-  sig_inside_vs_outside <- ifelse(
-    attributes(johnson_neyman_result)$inside, "inside", "outside")
-  # if sig area is outside
-  if (sig_inside_vs_outside == "outside") {
-    # sig area on the left
-    g1 <- g1 + ggplot2::annotate(
-      "rect", xmin = -Inf, xmax = jn_line_pos[["Lower"]],
-      ymin = -Inf, ymax = Inf,
-      alpha = sig_region_alpha, fill = sig_region_color)
-    # nonsig area in the middle
-    g1 <- g1 + ggplot2::annotate(
-      "rect",
-      xmin = jn_line_pos[["Lower"]],
-      xmax = jn_line_pos[["Higher"]],
-      ymin = -Inf, ymax = Inf,
-      alpha = nonsig_region_alpha, fill = nonsig_region_color)
-    # sig area on the right
-    g1 <- g1 + ggplot2::annotate(
-      "rect", xmin = jn_line_pos[["Higher"]], xmax = Inf,
-      ymin = -Inf, ymax = Inf,
-      alpha = sig_region_alpha, fill = sig_region_color)
-  }
-  # if sig area is inside
-  if (sig_inside_vs_outside == "inside") {
-    # nonsig area on the left
-    g1 <- g1 + ggplot2::annotate(
-      "rect", xmin = -Inf, xmax = jn_line_pos[["Lower"]],
-      ymin = -Inf, ymax = Inf,
-      alpha = nonsig_region_alpha, fill = nonsig_region_color)
-    # sig area in the middle
-    g1 <- g1 + ggplot2::annotate(
-      "rect",
-      xmin = jn_line_pos[["Lower"]],
-      xmax = jn_line_pos[["Higher"]],
-      ymin = -Inf, ymax = Inf,
-      alpha = sig_region_alpha, fill = sig_region_color)
-    # nonsig area on the right
-    g1 <- g1 + ggplot2::annotate(
-      "rect", xmin = jn_line_pos[["Higher"]], xmax = Inf,
-      ymin = -Inf, ymax = Inf,
-      alpha = nonsig_region_alpha, fill = nonsig_region_color)
   }
   # x axis title
   if (is.null(x_axis_title)) {

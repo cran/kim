@@ -1,6 +1,6 @@
 Package: kim
-Title: Behavioral Scientists' Analysis Toolkit
-Version: 0.5.3
+Title: A Toolkit for Behavioral Scientists
+Version: 0.5.55
 Authors@R: 
     person(given = "Jin",
            family = "Kim",
@@ -26,8 +26,8 @@ Suggests: boot, ggplot2, moments
 Encoding: UTF-8
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2022-03-17 23:33:12 UTC; c
+Packaged: 2022-07-08 15:26:41 UTC; c
 Author: Jin Kim [aut, cre] (<https://orcid.org/0000-0002-5013-3958>)
 Maintainer: Jin Kim <jin.m.kim@yale.edu>
 Repository: CRAN
-Date/Publication: 2022-03-18 10:10:02 UTC
+Date/Publication: 2022-07-08 15:40:02 UTC

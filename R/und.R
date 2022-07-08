@@ -2,6 +2,10 @@
 #'
 #' A collection of miscellaneous functions lacking documentations
 #'
+#' For more information on functions contained within this function,
+#' please refer to the following:
+#' mad_rm, Leys et al. (2013) doi:10.1016/j.jesp.2013.03.013
+#'
 #' @param fn name of the function
 #' @param ... arguments for the function
 #' @return the output will vary by function
@@ -37,6 +41,17 @@ und <- function(fn, ...) {
   # evaluate languages
   # ae stands for arguments evaluated
   ae <- lapply(al, eval, envir = focal_environment)
+  # list all subfunctions
+  if (fn == "list_functions") {
+    list_of_subfunctions <- sort(c(
+      "list_functions", "corr_text", "round_trail_0", "outlier_rm",
+      "convert_from_unicode", "compare_strings",
+      "mean_center", "mode", "mad_rm"))
+    kim::pm(
+      "The following ", length(list_of_subfunctions),
+      " undocumented functions are contained in the 'und' function:")
+    return(paste0(list_of_subfunctions, collapse = ", "))
+  }
   # corr text
   if (fn == "corr_text") {
     if (all(c("x", "y") %in% names(ae))) {
@@ -64,7 +79,7 @@ und <- function(fn, ...) {
     }
   }
   # round including trailing 0s
-  if (fn == "round_t0") {
+  if (fn == "round_trail_0") {
     # get the vector
     if ("x" %in% names(ae)) {
       x <- ae[["x"]]
@@ -88,15 +103,71 @@ und <- function(fn, ...) {
     } else {
       x <- ae[[1]]
     }
+    # ensure the vector is numeric
+    if (is.numeric(x) == FALSE) {
+      stop("The input x must be a numeric vector.")
+    }
     # set default values
     if (!"iqr" %in% names(ae)) {
       ae$iqr <- 1.5
     }
     outliers <- kim::outlier(x, iqr = ae$iqr)
+    # needs work: the code below can probably be updated
+    # for faster execution
     non_outlier_values <- x[which(!x %in% outliers)]
     return(non_outlier_values)
   }
-  # confirm that only one vector is entered
+  # remove outliers using the mad method
+  # see Leys et al. (2013) doi:10.1016/j.jesp.2013.03.013
+  if (fn == "mad_rm") {
+    # get the vector
+    if ("x" %in% names(ae)) {
+      x <- ae[["x"]]
+    } else {
+      x <- ae[[1]]
+    }
+    # ensure the vector is numeric
+    if (is.numeric(x) == FALSE) {
+      stop("The input x must be a numeric vector.")
+    }
+    # remove na values
+    if (!"na.rm" %in% names(ae)) {
+      ae$na.rm <- TRUE
+    }
+    # find mad
+    if ("constant" %in% names(ae)) {
+      mad <- stats::mad(x, constant = ae$constant, na.rm = ae$na.rm)
+    } else {
+      mad <- stats::mad(x, na.rm = ae$na.rm)
+    }
+    # threshold
+    if ("threshold" %in% names(ae)) {
+      threshold <- ae$threshold
+    } else {
+      threshold <- 2.5
+    }
+    # median
+    median <- median(x, na.rm = ae$na.rm)
+    # cutoff values
+    cutoff_low <- median - threshold * mad
+    cutoff_high <- median + threshold * mad
+    cutoff_values <- c(cutoff_low, cutoff_high)
+    # return cutoff values
+    if ("return_cutoff" %in% names(ae)) {
+      if (ae$return_cutoff == TRUE) {
+        return(cutoff_values)
+      }
+    }
+    # switch outliers to na
+    if ("switch_outlier_to" %in% names(ae)) {
+      x[x < cutoff_low | x > cutoff_high] <- ae$switch_outlier_to
+      return(x)
+    }
+    # values to keep
+    non_outlier_values <- x[which(x >= cutoff_low & x <= cutoff_high)]
+    return(non_outlier_values)
+  }
+  # confirm that the input has a length of 1
   if (length(ae) == 1) {
     x <- ae[[1]]
   } else if ("x" %in% names(ae)) {
@@ -106,8 +177,79 @@ und <- function(fn, ...) {
       "There must be only one input, or the input must be entered ",
       "as follows: x = [input]"))
   }
-  if (is.numeric(x) == FALSE) {
-    stop("Please enter a numeric vector as an input.")
+  # atomic vector --------------------------------------------------------
+  # check whether the input is character
+  if (is.atomic(x) == FALSE) {
+    stop("The input must be an atomic vector.")
+  }
+  # character vector --------------------------------------------------------
+  # convert substrings from unicode
+  if (fn == "convert_from_unicode") {
+    # conversions
+    Encoding(x) <- "UTF-8"
+    # double quotation marks
+    x <- gsub("[\u201C\u201D]", '"', x)
+    # single quotation marks
+    x <- gsub("[\u2018\u2019\u201B]", "'", x)
+    # prime and reverse prime
+    x <- gsub("[\u2032\u2035]", "'", x)
+    # space
+    x <- gsub("\u00A0", " ", x)
+    # ellipsis
+    x <- gsub("\u2026", "...", x)
+    # return output
+    return(x)
+  }
+  # compare strings
+  if (fn == "compare_strings") {
+    # check whether the vector is character
+    if (is.character(x) == FALSE) {
+      stop("The input must be a character vector.")
+    }
+    # check whether the vector has a length greater than 1
+    if (length(x) <= 1) {
+      stop("The input vector must have more than one element.")
+    }
+    # check whether elements are identical
+    identical_to_element_1 <- vapply(2:length(x), function(i) {
+      identical(x[1], x[i])
+    }, logical(1L))
+    if (all(identical_to_element_1) == TRUE) {
+      message("All elements of the input vector are identical.")
+      return("all identical")
+    }
+    # print if lengths are all 80 or less
+    string_lengths <- vapply(seq_along(x), function(i) {
+      nchar(x[i])
+    }, numeric(1L))
+    # get the maximum length
+    max_string_legnth <- max(string_lengths)
+    if (max_string_legnth <= 80) {
+      cat(x, sep = "\n")
+    }
+    # find the position where the elements differ
+    for (i in seq_len(max(string_lengths))) {
+      character_at_one_position <- vapply(seq_along(x), function(j) {
+        substr(x[j], i, i)
+      }, character(1L))
+      identical_to_character_1 <- vapply(2:length(
+        character_at_one_position), function(k) {
+          identical(character_at_one_position[1], character_at_one_position[k])
+        }, logical(1L))
+      if (any(identical_to_character_1 == FALSE)) {
+        position_of_difference <- i
+        break
+      }
+    }
+    if (max_string_legnth <= 80) {
+      cat(paste0(c(
+        rep("_", position_of_difference - 1),
+        "^",
+        " (Position ", i, ")\n"), collapse = ""))
+    }
+    # return the position of difference
+    output <- list("position_of_difference" = i)
+    return(output)
   }
   # mean center, standardize, z_score
   if (fn == "mean_center") {
@@ -128,6 +270,10 @@ und <- function(fn, ...) {
   }
   # mode
   if (fn == "mode") {
+    # the input x must be a numeric vector
+    if (is.numeric(x) == FALSE) {
+      stop("Please enter a numeric vector as an input.")
+    }
     unique_values <- unique(x)
     counts <- vapply(unique_values, function(value) {
       sum(x == value, na.rm = TRUE)
