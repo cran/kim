@@ -99,7 +99,9 @@ p-value for the interaction term?}
 variable for legend. By default, it will be set as levels of the
 independent variable ordered using R's base function \code{sort}.}
 
-\item{output_type}{type of output (default = "plot").}
+\item{output_type}{type of output (default = "plot"). Other
+possible values include "spotlight_results", "dt_for_plotting",
+"modified_dt"}
 
 \item{colors}{set colors for the two levels of the independent variable
 By default, \code{colors = c("red", "blue")}.}
@@ -256,7 +258,7 @@ By default, \code{silent = FALSE}.}
 }
 \description{
 Conduct a spotlight analysis for a 2 x Continuous design.
-See Spiller et al. (2013) doi:10.1509/jmr.12.0420.
+See Spiller et al. (2013) \doi{10.1509/jmr.12.0420}
 }
 \examples{
 \donttest{
@@ -305,5 +307,12 @@ error_bar_tip_width_percent = 3,
 simp_eff_text_offset_percent = 3,
 simp_eff_bracket_leg_ht_perc = 1,
 x_axis_breaks = seq(15, 22, 1))
+# spotlight for logistic regression
+spotlight_2_by_continuous(
+data = mtcars,
+iv_name = "am",
+dv_name = "vs",
+mod_name = "drat",
+logistic = TRUE)
 }
 }

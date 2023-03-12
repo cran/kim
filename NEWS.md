@@ -1,3 +1,49 @@
+# kim 0.5.212
+* Added the following function(s): contingency_table, chi_squared_test,
+geomean, mad_remove_outliers
+* Updated the following function(s) (and other functions that use them): 
+chi_squared_test_pairwise, odds_ratio
+
+# kim 0.5.202
+* Critical fix or improvement in the following functions (and other 
+functions that use them): z_score*
+* Highlights: Replaced the histogram function and replaced it
+with the function histogram_from_hist. Now executing the histogram 
+function will execute the histogram_from_hist function
+* Added the following function(s): odds_ratio, log_odds_ratio, 
+log_odds_ratio_to_d, cohen_d_to_r, weighted_mean_effect_size,
+var_of_log_odds_ratio_to_var_of_d
+* Updated the following function(s) (and other functions that use them): 
+forest_plot, cohen_d_borenstein, score_scale_items, z_score
+* Fixed bugs or errors in the following functions (and other functions
+that use them): cohen_d_borenstein, floodlight_2_by_continuous
+* Undocumented functions added (see the function `und`):
+
+# kim 0.5.138
+* Highlights: Fixed the logistic regression section for
+spotlight_2_by_continuous
+* Added the following function(s): z_score, standardize
+* Updated the following function(s) (and other functions that use them): 
+spotlight_2_by_continuous, compare_groups, desc_stats
+* Fixed bugs or errors in the following functions (and other functions
+that use them): spotlight_2_by_continuous
+* Critical improvement in the following functions (and other functions
+that use them): 
+* Undocumented functions added (see the function `und`):
+
+# kim 0.5.73
+* Highlights:
+* Added the following function(s): histogram_from_hist
+* Updated the following function(s) (and other functions that use them): 
+parallel_analysis, und, parallel_analysis, score_scale_items,
+histogram_from_hist
+* Fixed bugs or errors in the following functions (and other functions
+that use them): parallel_analysis
+compare_dependent_rs
+* Critical improvement in the following functions (and other functions
+that use them): 
+* Undocumented functions added (see the function `und`):
+
 # kim 0.5.55
 * Highlights:
 * The package title was changed from 

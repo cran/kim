@@ -32,7 +32,7 @@ floodlight_2_by_continuous(
   y_axis_title = NULL,
   legend_title = NULL,
   round_decimals_int_p_value = 3,
-  line_of_fit_size = 1,
+  line_of_fit_thickness = 1,
   round_jn_point_labels = 2
 )
 }
@@ -125,7 +125,7 @@ be removed.}
 decimal point should the p value for the interaction term be
 rounded? (default = 3)}
 
-\item{line_of_fit_size}{thickness of the lines of fit (default = 1)}
+\item{line_of_fit_thickness}{thickness of the lines of fit (default = 1)}
 
 \item{round_jn_point_labels}{To how many digits after the
 decimal point should the jn point labels be rounded? (default = 2)}
@@ -139,11 +139,12 @@ Package 'interactions' v1.1.1 (or possibly a higher version) by
 Jacob A. Long (2020),
 \url{https://cran.r-project.org/package=interactions}
 See the following references:
-Spiller et al. (2013) doi:10.1509/jmr.12.0420.
+Spiller et al. (2013) \doi{10.1509/jmr.12.0420}
 Kim (2021) \doi{10.5281/zenodo.4445388}
 }
 \examples{
 \donttest{
+# typical example
 floodlight_2_by_continuous(
 data = mtcars,
 iv_name = "am",
@@ -157,4 +158,11 @@ dv_name = "mpg",
 mod_name = "qsec",
 covariate_name = c("cyl", "hp"))
 }
+# adjust the jn point label positions
+floodlight_2_by_continuous(
+data = mtcars,
+iv_name = "am",
+dv_name = "mpg",
+mod_name = "qsec",
+jn_point_label_hjust = c(1, 0))
 }

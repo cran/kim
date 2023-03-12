@@ -11,7 +11,7 @@ weighted_mean_r(r = NULL, n = NULL, ci = 0.95, sigfigs = 3, silent = FALSE)
 
 \item{n}{a (vector of) sample size(s)}
 
-\item{ci}{size of the confidence interval. Input can be any value
+\item{ci}{width of the confidence interval. Input can be any value
 less than 1 and greater than or equal to 0. By default, \code{ci = 0.95}.
 If \code{ci = TRUE}, the default value of 0.95 will be used. If \code{
 ci = FALSE}, no confidence interval will be estimated.}
@@ -29,7 +29,7 @@ the output will be a list of  vector of correlation coefficient(s).
 \description{
 Calculate the weighted mean correlation coefficient for a given
 correlations and sample sizes.
-See Field (2001) doi:10.1037/1082-989X.6.2.161
+See Field (2001) \doi{10.1037/1082-989X.6.2.161}
 }
 \examples{
 weighted_mean_r(r = c(0.2, 0.4), n = c(100, 100))

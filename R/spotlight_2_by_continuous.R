@@ -1,7 +1,7 @@
 #' Spotlight 2 by Continuous
 #'
 #' Conduct a spotlight analysis for a 2 x Continuous design.
-#' See Spiller et al. (2013) doi:10.1509/jmr.12.0420.
+#' See Spiller et al. (2013) \doi{10.1509/jmr.12.0420}
 #'
 #' @param data a data object (a data frame or a data.table)
 #' @param iv_name name of the binary independent variable (IV)
@@ -17,7 +17,9 @@
 #' @param iv_level_order order of levels in the independent
 #' variable for legend. By default, it will be set as levels of the
 #' independent variable ordered using R's base function \code{sort}.
-#' @param output_type type of output (default = "plot").
+#' @param output_type type of output (default = "plot"). Other
+#' possible values include "spotlight_results", "dt_for_plotting",
+#' "modified_dt"
 #' @param colors set colors for the two levels of the independent variable
 #' By default, \code{colors = c("red", "blue")}.
 #' @param observed_dots logical. If \code{observed_dots = TRUE}, the
@@ -164,6 +166,13 @@
 #' simp_eff_text_offset_percent = 3,
 #' simp_eff_bracket_leg_ht_perc = 1,
 #' x_axis_breaks = seq(15, 22, 1))
+#' # spotlight for logistic regression
+#' spotlight_2_by_continuous(
+#' data = mtcars,
+#' iv_name = "am",
+#' dv_name = "vs",
+#' mod_name = "drat",
+#' logistic = TRUE)
 #' }
 #' @export
 spotlight_2_by_continuous <- function(
@@ -234,6 +243,73 @@ spotlight_2_by_continuous <- function(
     plot_margin = ggplot2::unit(c(60, 30, 7, 7), "pt"),
     silent = FALSE
 ) {
+  # for testing
+  # data = NULL
+  # iv_name = NULL
+  # dv_name = NULL
+  # mod_name = NULL
+  # logistic = NULL
+  # covariate_name = NULL
+  # focal_values = NULL
+  # interaction_p_include = TRUE
+  # iv_level_order = NULL
+  # output_type = "plot"
+  # colors = c("red", "blue")
+  # dot_size = 3
+  # observed_dots = FALSE
+  # reg_lines = FALSE
+  # reg_line_size = 1
+  # lines_connecting_est_dv = TRUE
+  # lines_connecting_est_dv_size = 1
+  # estimated_dv_dot_shape = 15
+  # estimated_dv_dot_size = 6
+  # error_bar = "ci"
+  # error_bar_range = 0.95
+  # error_bar_tip_width = NULL
+  # error_bar_tip_width_percent = 8
+  # error_bar_thickness = 1
+  # error_bar_offset = NULL
+  # error_bar_offset_percent = 8
+  # simp_eff_bracket_leg_ht = NULL
+  # simp_eff_bracket_leg_ht_perc = 2
+  # simp_eff_bracket_offset = NULL
+  # simp_eff_bracket_offset_perc = 1
+  # simp_eff_bracket_color = "black"
+  # simp_eff_bracket_line_size = 1
+  # simp_eff_text_offset = NULL
+  # simp_eff_text_offset_percent = 7
+  # simp_eff_text_hjust = 0.5
+  # simp_eff_text_part_1 = "Simple Effect\n"
+  # simp_eff_text_color = "black"
+  # simp_eff_font_size = 5
+  # interaction_p_value_x = NULL
+  # interaction_p_value_y = NULL
+  # interaction_p_value_font_size = 6
+  # interaction_p_value_vjust = -1
+  # interaction_p_value_hjust = 0.5
+  # x_axis_breaks = NULL
+  # x_axis_limits = NULL
+  # x_axis_tick_mark_labels = NULL
+  # y_axis_breaks = NULL
+  # y_axis_limits = NULL
+  # x_axis_space_left_perc = 10
+  # x_axis_space_right_perc = 30
+  # y_axis_tick_mark_labels = NULL
+  # x_axis_title = NULL
+  # y_axis_title = NULL
+  # legend_title = NULL
+  # legend_position = "right"
+  # y_axis_title_vjust = 0.85
+  # round_decimals_int_p_value = 3
+  # jitter_x_percent = 0
+  # jitter_y_percent = 0
+  # dot_alpha = 0.2
+  # reg_line_alpha = 0.5
+  # jn_point_font_size = 6
+  # reg_line_types = c("solid", "dashed")
+  # caption = NULL
+  # plot_margin = ggplot2::unit(c(60, 30, 7, 7), "pt")
+  # silent = FALSE
   # installed packages
   installed_pkgs <- rownames(utils::installed.packages())
   # check if Package 'ggplot2' is installed
@@ -260,7 +336,7 @@ spotlight_2_by_continuous <- function(
   # bind the vars locally to the function
   dv <- iv <- iv_binary <- iv_factor <- mod <- NULL
   iv_binary_flipped <- estimated_dv <- mod_minus_focal_value <- NULL
-  focal_value <- focal_value_alt <- NULL
+  mod_value <- focal_value <- NULL
   y1_error_bar_x <- y2_error_bar_x <- NULL
   simp_eff_bracket_x_begin <- simp_eff_bracket_x_end <- NULL
   simp_eff_text_x <- mean_of_y1_and_y2 <- NULL
@@ -341,7 +417,7 @@ spotlight_2_by_continuous <- function(
     iv_binary == 0, 1, iv_binary == 1, 0)]
   # output dt
   if (output_type == "modified_dt") {
-    return(dt)
+    return(dt[])
   }
   # lm formulas
   lm_formula_1_character <-
@@ -366,6 +442,7 @@ spotlight_2_by_continuous <- function(
   lm_formula_main <- stats::as.formula(lm_formula_main_character)
   # focal values of the moderator
   if (is.null(focal_values)) {
+    focal_values_given <- FALSE
     mod_mean <- mean(dt[, mod])
     mod_sd <- stats::sd(dt[, mod])
     focal_values <- c(
@@ -373,22 +450,17 @@ spotlight_2_by_continuous <- function(
       mod_mean,
       mod_mean + mod_sd
     )
+    focal_value_description <- factor(1:3, labels = c(
+      "-1 SD", "Mean", "+1 SD"))
   } else {
+    focal_values_given <- TRUE
     # order the unique values
     focal_values <- kim::su(focal_values)
+    focal_value_description <- focal_values
   }
   # check if a plot superimposition is necessary
   overlay <- ifelse(
     observed_dots == FALSE & reg_lines == FALSE, FALSE, TRUE)
-  # set values related to focal values
-  if (overlay == TRUE) {
-    focal_values_alt <- focal_values
-    focal_value_description <- focal_values
-  } else if (overlay == FALSE) {
-    focal_values_alt <- 1:3
-    focal_value_description <- factor(1:3, labels = c(
-      "-1 SD", "Mean", "+1 SD"))
-  }
   # mean center covariates
   if (length(covariate_name) > 0) {
     for (j in seq_along(covariate_name)) {
@@ -457,11 +529,11 @@ spotlight_2_by_continuous <- function(
       return(output)
     })
   } else if (logistic == TRUE) {
-    warning(paste0(
-      "The analyses presented below may be wrong, ",
-      "as this function was originally\n",
-      "intended for ordinary least squares regressions, rather than ",
-      "logistic regressions."))
+    # warning(paste0(
+    #   "The analyses presented below may be wrong, ",
+    #   "as this function was originally\n",
+    #   "intended for ordinary least squares regressions, rather than ",
+    #   "logistic regressions."))
     # conduct spotlight regressions
     spotlight_results <- lapply(seq_along(focal_values), function(i) {
       # focal value of the moderator
@@ -485,8 +557,10 @@ spotlight_2_by_continuous <- function(
       b3_1 <- summary(lm_1)[["coefficients"]][
         "iv_binary:mod_minus_focal_value", "Estimate"]
       y1 <- 1 / (1 + exp(-(
-        b0_1 + b1_1 * iv_focal + b2_1 * mod_focal + b3_1 * iv_focal *
-          mod_focal)))
+        b0_1 +
+          b1_1 * iv_focal +
+          b2_1 * 0 +
+          b3_1 * iv_focal * 0)))
       # error bar
       if (error_bar == "se") {
         error_bar <- "ci"
@@ -505,8 +579,10 @@ spotlight_2_by_continuous <- function(
         b2_1 <- coeff_for_ci["mod_minus_focal_value", 1]
         b3_1 <- coeff_for_ci["iv_binary:mod_minus_focal_value", 1]
         y1_ci_ll <- 1 / (1 + exp(-(
-          b0_1 + b1_1 * iv_focal + b2_1 * mod_focal + b3_1 * iv_focal *
-            mod_focal)))
+          b0_1 +
+            b1_1 * iv_focal +
+            b2_1 * 0 +
+            b3_1 * iv_focal * 0)))
         # clear the values
         b0_1 <- b1_1 <- b2_1 <- b3_1 <- NULL
         # get the coefficients for the upper limit of the ci
@@ -515,8 +591,10 @@ spotlight_2_by_continuous <- function(
         b2_1 <- coeff_for_ci["mod_minus_focal_value", 2]
         b3_1 <- coeff_for_ci["iv_binary:mod_minus_focal_value", 2]
         y1_ci_ul <- 1 / (1 + exp(-(
-          b0_1 + b1_1 * iv_focal + b2_1 * mod_focal + b3_1 * iv_focal *
-            mod_focal)))
+          b0_1 +
+            b1_1 * iv_focal +
+            b2_1 * 0 +
+            b3_1 * iv_focal * 0)))
         # error bar range for y1
         error_bar_range_y1 <- c(y1_ci_ll, y1_ci_ul)
         names(error_bar_range_y1) <- c(
@@ -538,8 +616,10 @@ spotlight_2_by_continuous <- function(
       b3_2 <- summary(lm_2)[["coefficients"]][
         "iv_binary_flipped:mod_minus_focal_value", "Estimate"]
       y2 <- 1 / (1 + exp(-(
-        b0_2 + b1_2 * iv_focal + b2_2 * mod_focal + b3_2 * iv_focal *
-          mod_focal)))
+        b0_2 +
+          b1_2 * iv_focal +
+          b2_2 * 0 +
+          b3_2 * iv_focal * 0)))
       if (error_bar == "ci") {
         # ci for the estimated probability when iv = 1
         coeff_for_ci <- NULL
@@ -552,8 +632,10 @@ spotlight_2_by_continuous <- function(
         b2_2 <- coeff_for_ci["mod_minus_focal_value", 1]
         b3_2 <- coeff_for_ci["iv_binary_flipped:mod_minus_focal_value", 1]
         y2_ci_ll <- 1 / (1 + exp(-(
-          b0_2 + b1_2 * iv_focal + b2_2 * mod_focal + b3_2 * iv_focal *
-            mod_focal)))
+          b0_2 +
+            b1_2 * iv_focal +
+            b2_2 * 0 +
+            b3_2 * iv_focal * 0)))
         # get the coefficients for the upper limit of the ci
         b0_2 <- b1_2 <- b2_2 <- b3_2 <- NULL
         b0_2 <- coeff_for_ci["(Intercept)", 2]
@@ -561,8 +643,10 @@ spotlight_2_by_continuous <- function(
         b2_2 <- coeff_for_ci["mod_minus_focal_value", 2]
         b3_2 <- coeff_for_ci["iv_binary_flipped:mod_minus_focal_value", 2]
         y2_ci_ul <- 1 / (1 + exp(-(
-          b0_2 + b1_2 * iv_focal + b2_2 * mod_focal + b3_2 * iv_focal *
-            mod_focal)))
+          b0_2 +
+            b1_2 * iv_focal +
+            b2_2 * 0 +
+            b3_2 * iv_focal * 0)))
         # error bar range for y1
         error_bar_range_y2 <- c(y2_ci_ll, y2_ci_ul)
         names(error_bar_range_y2) <- c(
@@ -580,8 +664,11 @@ spotlight_2_by_continuous <- function(
     do.call(rbind, spotlight_results))
   # add focal values
   dt2[, focal_value := focal_values]
-  dt2[, focal_value_alt := focal_values_alt]
   dt2[, focal_value_description := focal_value_description]
+  # ouptut spotlight results
+  if (output_type == "spotlight_results") {
+    return(dt2[])
+  }
   # parameters for plotting
   # min and max of x and y
   if (overlay == TRUE) {
@@ -591,8 +678,8 @@ spotlight_2_by_continuous <- function(
     y_max <- max(dt[, dv], na.rm = TRUE)
     y_range <- y_max - y_min
   } else if (overlay == FALSE) {
-    x_min <- min(dt2[, focal_value_alt])
-    x_max <- max(dt2[, focal_value_alt])
+    x_min <- min(dt2[, focal_value])
+    x_max <- max(dt2[, focal_value])
   }
   # x and y ranges
   x_range <- x_max - x_min
@@ -606,8 +693,8 @@ spotlight_2_by_continuous <- function(
     error_bar_tip_width <- x_range * error_bar_tip_width_percent / 100
   }
   # add x coordinates of error bars
-  dt2[, y1_error_bar_x := focal_value_alt - error_bar_offset_half]
-  dt2[, y2_error_bar_x := focal_value_alt + error_bar_offset_half]
+  dt2[, y1_error_bar_x := focal_value - error_bar_offset_half]
+  dt2[, y2_error_bar_x := focal_value + error_bar_offset_half]
   # add x coordinates of simple effect brackets
   if (is.null(simp_eff_bracket_offset)) {
     simp_eff_bracket_offset <-
@@ -617,9 +704,9 @@ spotlight_2_by_continuous <- function(
     simp_eff_bracket_leg_ht <-
       x_range * simp_eff_bracket_leg_ht_perc / 100
   }
-  dt2[, simp_eff_bracket_x_begin := focal_value_alt +
+  dt2[, simp_eff_bracket_x_begin := focal_value +
         error_bar_offset_half + simp_eff_bracket_offset]
-  dt2[, simp_eff_bracket_x_end := focal_value_alt +
+  dt2[, simp_eff_bracket_x_end := focal_value +
         error_bar_offset_half + simp_eff_bracket_offset +
         simp_eff_bracket_leg_ht]
   # add x coordinates of simple effect text
@@ -646,15 +733,16 @@ spotlight_2_by_continuous <- function(
     # edit dt for plotting
     dt3 <- dt2[, c(
       "y1", "y1_error_bar_begin", "y1_error_bar_end",
-      "focal_value_description")]
+      "focal_value", "focal_value_description")]
     dt3[, iv := iv_level_1]
     dt4 <- dt2[, c(
       "y2", "y2_error_bar_begin", "y2_error_bar_end",
-      "focal_value_description")]
+      "focal_value", "focal_value_description")]
     dt4[, iv := iv_level_2]
     dt5 <- rbind(dt3, dt4, use.names = FALSE)
     names(dt5) <- c(
-      "estimated_dv", "error_bar_ll", "error_bar_ul", "mod", "iv")
+      "estimated_dv", "error_bar_ll", "error_bar_ul",
+      "mod_value", "mod_label", "iv")
     dt5[, iv := factor(iv, levels = c(iv_level_1, iv_level_2))]
     # output dt for plotting
     if (output_type == "dt_for_plotting") {
@@ -662,7 +750,7 @@ spotlight_2_by_continuous <- function(
     }
     # begin plotting
     g1 <- ggplot2::ggplot(data = dt5, mapping = ggplot2::aes(
-      x = mod, y = estimated_dv, color = iv, group = iv))
+      x = mod_value, y = estimated_dv, color = iv, group = iv))
     g1 <- g1 + ggplot2::scale_color_manual(values = colors)
     # add error bars
     g1 <- g1 + ggplot2::geom_errorbar(ggplot2::aes(
@@ -771,15 +859,15 @@ spotlight_2_by_continuous <- function(
     }
   }
   # add simple effect brackets and texts
-  for (i in seq_along(focal_values_alt)) {
+  for (i in seq_along(focal_values)) {
     # x coordinates of the bracket
     temp_bracket_x_begin <- dt2[
-      focal_value_alt == focal_values_alt[i], simp_eff_bracket_x_begin]
+      focal_value == focal_values[i], simp_eff_bracket_x_begin]
     temp_bracket_x_end <- dt2[
-      focal_value_alt == focal_values_alt[i], simp_eff_bracket_x_end]
+      focal_value == focal_values[i], simp_eff_bracket_x_end]
     # y coordinates of the bracket ends
-    temp_bracket_y_begin <- dt2[focal_value_alt == focal_values_alt[i], y1]
-    temp_bracket_y_end <- dt2[focal_value_alt == focal_values_alt[i], y2]
+    temp_bracket_y_begin <- dt2[focal_value == focal_values[i], y1]
+    temp_bracket_y_end <- dt2[focal_value == focal_values[i], y2]
     # the vertical segment of the bracket
     g1 <- g1 + ggplot2::geom_segment(
       x = temp_bracket_x_end,
@@ -809,10 +897,10 @@ spotlight_2_by_continuous <- function(
       inherit.aes = FALSE)
     # x coordinate of the simple effect texts
     temp_simp_eff_text_x <- dt2[
-      focal_value_alt == focal_values_alt[i], simp_eff_text_x]
+      focal_value == focal_values[i], simp_eff_text_x]
     # y coordinate of the simple effect texts
     temp_simp_eff_text_y <- dt2[
-      focal_value_alt == focal_values_alt[i], mean_of_y1_and_y2]
+      focal_value == focal_values[i], mean_of_y1_and_y2]
     # add simple effect text
     g1 <- g1 + ggplot2::annotate(
       geom = "text",
@@ -820,7 +908,7 @@ spotlight_2_by_continuous <- function(
       y = temp_simp_eff_text_y,
       label = paste0(
         simp_eff_text_part_1, kim::pretty_round_p_value(
-          dt2[focal_value_alt == focal_values_alt[i], simp_eff_p_value],
+          dt2[focal_value == focal_values[i], simp_eff_p_value],
           include_p_equals = TRUE)),
       color = simp_eff_text_color,
       hjust = simp_eff_text_hjust,
@@ -882,6 +970,11 @@ spotlight_2_by_continuous <- function(
     g1 <- g1 + ggplot2::scale_x_continuous(limits = x_axis_limits)
   } else if (!is.null(x_axis_breaks)) {
     g1 <- g1 + ggplot2::scale_x_continuous(breaks = x_axis_breaks)
+  }
+  if (focal_values_given == FALSE) {
+    g1 <- g1 + ggplot2::scale_x_continuous(
+      breaks = focal_values,
+      labels = focal_value_description)
   }
   # edit y axis
   if (!is.null(y_axis_limits) & !is.null(y_axis_breaks)) {

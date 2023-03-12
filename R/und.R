@@ -2,10 +2,6 @@
 #'
 #' A collection of miscellaneous functions lacking documentations
 #'
-#' For more information on functions contained within this function,
-#' please refer to the following:
-#' mad_rm, Leys et al. (2013) doi:10.1016/j.jesp.2013.03.013
-#'
 #' @param fn name of the function
 #' @param ... arguments for the function
 #' @return the output will vary by function
@@ -27,20 +23,31 @@ und <- function(fn, ...) {
   # list of arguments entered
   # al stands for argument list
   al <- as.list(match.call(expand.dots = TRUE))
+  # if no argument is given, run the default function.
+  # the default function for now is list_functions
+  if (length(al) == 1) {
+    if (is.symbol(al[[1]]) == TRUE) {
+      if (al[[1]] == "und") {
+        # set the default function
+        fn <- "list_functions"
+      }
+    }
+  } else {
+    # change function name to a character
+    fn <- as.character(al$fn)
+    # the code above returns the function name, e.g., "corr_text"
+    # remove the first two elements as we probably will not need them
+    al[1:2] <- NULL
+    # the code above returns a list of inputs,
+    # e.g., [[1]]1:10, if the input was 1:10
+    # environment for evaluating language
+    focal_environment <- new.env(parent = parent.frame())
+    # evaluate languages
+    # ae stands for arguments evaluated
+    ae <- lapply(al, eval, envir = focal_environment)
+  }
   # the code above returns the following list:
   # [[1]]und, $fn [function name], [[3]] [vector input etc]
-  # change function name to a character
-  fn <- as.character(al$fn)
-  # the code above returns the function name, e.g., "corr_text"
-  # remove the first two elements as we probably will not need them
-  al[1:2] <- NULL
-  # the code above returns a list of inputs,
-  # e.g., [[1]]1:10, if the input was 1:10
-  # environment for evaluating language
-  focal_environment <- new.env(parent = parent.frame())
-  # evaluate languages
-  # ae stands for arguments evaluated
-  ae <- lapply(al, eval, envir = focal_environment)
   # list all subfunctions
   if (fn == "list_functions") {
     list_of_subfunctions <- sort(c(
@@ -118,7 +125,7 @@ und <- function(fn, ...) {
     return(non_outlier_values)
   }
   # remove outliers using the mad method
-  # see Leys et al. (2013) doi:10.1016/j.jesp.2013.03.013
+  # see Leys et al. (2013)
   if (fn == "mad_rm") {
     # get the vector
     if ("x" %in% names(ae)) {
@@ -167,6 +174,11 @@ und <- function(fn, ...) {
     non_outlier_values <- x[which(x >= cutoff_low & x <= cutoff_high)]
     return(non_outlier_values)
   }
+  #######################################################
+  #
+  # the functions below take an input of length = 1
+  #
+  #######################################################
   # confirm that the input has a length of 1
   if (length(ae) == 1) {
     x <- ae[[1]]
