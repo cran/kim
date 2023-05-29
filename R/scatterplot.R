@@ -52,14 +52,31 @@
 #' dot sizes will be determined by the argument \code{dot_size_range}
 #' @param dot_size_range minimum and maximum size for dots
 #' on the plot when they are weighted
+#' @param jitter_x_y_percent horizontally and vertically jitter dots
+#' by a percentage of the range of x and y values.
 #' @param jitter_x_percent horizontally jitter dots by a percentage of the
-#' range of x values
+#' range of x values.
 #' @param jitter_y_percent vertically jitter dots by a percentage of the
 #' range of y values
 #' @param cap_axis_lines logical. Should the axis lines be capped at the
 #' outer tick marks? (default = TRUE)
 #' @param color_dots_by name of the variable that will determine
 #' colors of the dots
+#' @param png_name name of the PNG file to be saved. By default, the name
+#' will be "scatterplot_" followed by a timestamp of the
+#' current time.
+#' The timestamp will be in the format, jan_01_2021_1300_10_000001,
+#' where "jan_01_2021" would indicate January 01, 2021;
+#' 1300 would indicate 13:00 (i.e., 1 PM); and 10_000001 would
+#' indicate 10.000001 seconds after the hour.
+#' @param save_as_png if \code{save = TRUE}, the plot will be saved
+#' as a PNG file.
+#' @param width width of the plot to be saved. This argument will be
+#' directly entered as the \code{width} argument for the \code{ggsave}
+#' function within \code{ggplot2} package (default = 16)
+#' @param height height of the plot to be saved. This argument will be
+#' directly entered as the \code{height} argument for the \code{ggsave}
+#' function within \code{ggplot2} package (default = 9)
 #' @return the output will be a scatter plot, a ggplot object.
 #' @examples
 #' \dontrun{
@@ -99,8 +116,13 @@ scatterplot <- function(
   dot_size_range = c(3, 12),
   jitter_x_percent = 0,
   jitter_y_percent = 0,
-  cap_axis_lines = FALSE,
-  color_dots_by = NULL) {
+  jitter_x_y_percent = 0,
+  cap_axis_lines = TRUE,
+  color_dots_by = NULL,
+  png_name = NULL,
+  save_as_png = FALSE,
+  width = 16,
+  height = 9) {
   # bind the vars locally to the function
   x <- y <- NULL
   # installed packages
@@ -172,6 +194,10 @@ scatterplot <- function(
     g1 <- g1 + ggplot2::aes(color = dt02$color)
   }
   # add jitter
+  if (jitter_x_y_percent > 0) {
+    jitter_x_percent <- jitter_x_y_percent
+    jitter_y_percent <- jitter_x_y_percent
+  }
   if (jitter_x_percent > 0 | jitter_y_percent > 0) {
     pj <- ggplot2::position_jitter(
       width = jitter_x_percent / 100 * x_range,
@@ -230,7 +256,7 @@ scatterplot <- function(
         method = line_of_fit_type,
         mapping = ggplot2::aes(weight = dt02$weight),
         color = line_of_fit_color,
-        size = line_of_fit_thickness,
+        linewidth = line_of_fit_thickness,
         se = ci_for_line_of_fit)
     } else {
       g1 <- g1 + ggplot2::geom_smooth(
@@ -299,6 +325,19 @@ scatterplot <- function(
   g1 <- g1 + ggplot2::ylab(y_axis_label)
   # plot theme
   g1 <- g1 + kim::theme_kim(cap_axis_lines = cap_axis_lines)
+  print(g1)
+  # save as png
+  if (save_as_png == TRUE & is.null(png_name)) {
+    # default file name
+    if (is.null(png_name)) {
+      ts <- tolower(
+        gsub("\\.", "_", format(Sys.time(), "_%b_%d_%Y_%H%M_%OS6")))
+      png_name <- paste0("scatterplot", ts)
+    }
+  }
+  if (!is.null(png_name)) {
+    kim::ggsave_quick(name = png_name, width = width, height = height)
+  }
   # return the ggplot
-  return(g1)
+  invisible(g1)
 }

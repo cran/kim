@@ -21,6 +21,8 @@
 #' for the odds ratio.
 #' @param round_odds_ratio_ci_limits number of decimal places to which to
 #' round the limits of the odds ratio's confidence interval (default = 2)
+#' @param invert logical. Whether the inverse of the odds ratio
+#' (i.e., 1 / odds ratio) should be returned.
 #' @examples
 #' chi_squared_test(data = mtcars, iv_name = "cyl", dv_name = "am")
 #' # if the iv has only two levels, odds ratio will also be calculated
@@ -35,14 +37,22 @@ chi_squared_test <- function(
   sigfigs_proportion = 2,
   correct = TRUE,
   odds_ratio_ci = 0.95,
-  round_odds_ratio_ci_limits = 2
+  round_odds_ratio_ci_limits = 2,
+  invert = FALSE
 ) {
   # make sure the dv has only two levels of value
   values_of_dv <- unique(data[[dv_name]])
-  if (length(values_of_dv) != 2) {
+  if (length(values_of_dv) < 2) {
     stop(paste0(
       "The DV has ", length(values_of_dv), " level(s), rather than the ",
-      "expected 2 levels."))
+      "expected 2 levels (or more)."))
+  } else if (length(values_of_dv) > 2) {
+    stop(paste0(
+      "The current version of this function can only handle a DV with",
+      " 2 levels.\n",
+      "For a DV with more than two levels, try the 'CrossTable'",
+      "function\nin the 'gmodels' package as in the following example:\n",
+      "gmodels::CrossTable(mtcars$cyl, mtcars$carb)"))
   }
   # check inputs
   if (is.null(data) | is.null(iv_name) | is.null(dv_name)) {
@@ -102,6 +112,7 @@ chi_squared_test <- function(
     kim::odds_ratio(
       data = data, iv_name = iv_name, dv_name = dv_name,
       ci = odds_ratio_ci,
-      round_ci_limits = round_odds_ratio_ci_limits)
+      round_ci_limits = round_odds_ratio_ci_limits,
+      invert = invert)
   }
 }

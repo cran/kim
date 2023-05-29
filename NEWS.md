@@ -1,3 +1,36 @@
+# kim 0.5.260
+* Added the following function(s): var_of_proportion, se_of_proportion,
+var_of_percentage, se_of_percentage, cohen_d_for_one_sample,
+correlation_kim, package_list_default
+* Updated the following function(s) (and other functions that use them):
+cohen_d, cohen_d_over_n, scatterplot, weighted_mean_effect_size,
+tau_squared
+
+# kim 0.5.241
+* Deleted the following function(s): lu
+* Added the following function(s): lenu
+
+# kim 0.5.240
+* Added the following function(s): binomial_test
+
+# kim 0.5.233
+* Updated the following function(s) (and other functions that use them):
+chi_squared_test
+
+# kim 0.5.232
+* Responded to the issue raised by oliviermeslin on github
+* Updated the following function(s) (and other functions that use them): 
+merge_data_tables, merge_data_table_list
+
+# kim 0.5.222
+* Added the following function(s): two_way_anova, lu
+* Updated the following function(s) (and other functions that use them): 
+levene_test
+
+# kim 0.5.213
+* Updated the following function(s) (and other functions that use them): 
+chi_squared_test
+
 # kim 0.5.212
 * Added the following function(s): contingency_table, chi_squared_test,
 geomean, mad_remove_outliers
