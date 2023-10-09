@@ -1,3 +1,59 @@
+# kim 0.5.421
+* Note to developer(s): "The errors for r-devel are from a recent change
+in r-devel fixing the long-standing PR#14359, to the effect that the 
+formula methods for t and Wilcoxon tests defer NA handling to the 
+default method, and do not allow 'paired' arguments."
+* Updated the following function(s) (and other functions that use them): 
+mann_whitney, t_test_pairwise, wilcoxon_rank_sum_test
+
+# kim 0.5.402
+* Updated the following function(s) (and other functions that use them): 
+floodlight_2_by_continuous
+
+# kim 0.5.401
+* Critical fix or improvement in the following functions (and other 
+functions that use them): two_way_anova
+
+# kim 0.5.363
+* Updated the following function(s) (and other functions that use them): 
+update_kim, .onAttach, histogram_by_group, compare_groups,
+plot_group_means, two_way_anova
+
+# kim 0.5.357
+* Updated the following function(s) (and other functions that use them): 
+logistic_regression, theme_kim, floodlight_multi_by_continuous,
+two_way_anova, floodlight_2_by_continuous, 
+floodlight_2_by_continuous_logistic
+
+# kim 0.5.351
+* Added the following function(s): floodlight_2_by_continuous_logistic
+
+# kim 0.5.338
+* Updated the following function(s) (and other functions that use them):
+floodlight_multi_by_continuous, floodlight_for_contrasts,
+plot_group_means, correlation_kim
+
+# kim 0.5.322
+* Added the following function(s): floodlight_for_contrasts
+
+# kim 0.5.312
+* Updated the following function(s) (and other functions that use them):
+floodlight_multi_by_continuous
+
+# kim 0.5.307
+* Added the following function(s): holm_adjusted_p_values
+* Updated the following function(s) (and other functions that use them):
+t_test_pairwise, compare_groups
+
+# kim 0.5.303
+* Updated the following function(s) (and other functions that use them):
+floodlight_multi_by_continuous
+
+# kim 0.5.271
+* Added the following function(s): floodlight_multi_by_continuous, mean_center
+* Updated the following function(s) (and other functions that use them):
+floodlight_2_by_continuous, multiple_regression
+
 # kim 0.5.260
 * Added the following function(s): var_of_proportion, se_of_proportion,
 var_of_percentage, se_of_percentage, cohen_d_for_one_sample,

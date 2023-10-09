@@ -17,13 +17,18 @@ floodlight_2_by_continuous(
   jitter_y_percent = 0,
   dot_alpha = 0.5,
   dot_size = 4,
-  interaction_p_value_font_size = 6,
-  jn_point_font_size = 6,
+  interaction_p_value_font_size = 8,
+  jn_point_label_add = TRUE,
+  jn_point_font_size = 8,
   jn_point_label_hjust = NULL,
-  plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
+  lines_at_mod_extremes = FALSE,
+  interaction_p_vjust = -3,
+  plot_margin = ggplot2::unit(c(75, 7, 7, 7), "pt"),
   legend_position = "right",
   reg_line_types = c("solid", "dashed"),
   jn_line_types = c("solid", "solid"),
+  jn_line_thickness = 1.5,
+  colors_for_iv = c("red", "blue"),
   sig_region_color = "green",
   sig_region_alpha = 0.08,
   nonsig_region_color = "gray",
@@ -56,7 +61,7 @@ independent variable ordered using R's base function \code{sort}.}
 
 \item{output}{type of output (default = "reg_lines_plot").
 Possible inputs: "interactions_pkg_results", "simple_effects_plot",
-"jn_points", "reg_lines_plot"}
+"jn_points", "regions", "reg_lines_plot"}
 
 \item{jitter_x_percent}{horizontally jitter dots by a percentage of the
 range of x values}
@@ -70,17 +75,29 @@ range of y values}
 \item{dot_size}{size of the dots (default = 4)}
 
 \item{interaction_p_value_font_size}{font size for the interaction
-p value (default = 6)}
+p value (default = 8)}
+
+\item{jn_point_label_add}{logical. Should the labels for
+Johnson-Neyman point labels be added to the plot? (default = TRUE)}
 
 \item{jn_point_font_size}{font size for Johnson-Neyman point labels
-(default = 6)}
+(default = 8)}
 
 \item{jn_point_label_hjust}{a vector of hjust values for
 Johnson-Neyman point labels. By default, the hjust value will be 0.5 for
 all the points.}
 
+\item{lines_at_mod_extremes}{logical. Should vertical lines be
+drawn at the observed extreme values of the moderator if those values
+lie in siginificant region(s)?
+(default = FALSE)}
+
+\item{interaction_p_vjust}{By how much should the label for the
+interaction p-value be adjusted vertically?
+By default, \code{interaction_p_vjust = -3})}
+
 \item{plot_margin}{margin for the plot
-By default \code{plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt")}}
+By default \code{plot_margin = ggplot2::unit(c(75, 7, 7, 7), "pt")}}
 
 \item{legend_position}{position of the legend (default = "right").
 If \code{legend_position = "none"}, the legend will be removed.}
@@ -91,6 +108,12 @@ By default, \code{reg_line_types = c("solid", "dashed")}}
 
 \item{jn_line_types}{types of the lines for Johnson-Neyman points.
 By default, \code{jn_line_types = c("solid", "solid")}}
+
+\item{jn_line_thickness}{thickness of the lines at Johnson-Neyman points
+(default = 1.5)}
+
+\item{colors_for_iv}{colors for the two values of the
+independent variable (default = c("red", "blue"))}
 
 \item{sig_region_color}{color of the significant region, i.e., range(s)
 of the moderator variable for which simple effect of the independent
@@ -157,7 +180,6 @@ iv_name = "am",
 dv_name = "mpg",
 mod_name = "qsec",
 covariate_name = c("cyl", "hp"))
-}
 # adjust the jn point label positions
 floodlight_2_by_continuous(
 data = mtcars,
@@ -165,4 +187,27 @@ iv_name = "am",
 dv_name = "mpg",
 mod_name = "qsec",
 jn_point_label_hjust = c(1, 0))
+# return regions of significance and nonsignificance
+floodlight_2_by_continuous(
+data = mtcars,
+iv_name = "am",
+dv_name = "mpg",
+mod_name = "qsec",
+output = "regions")
+# draw lines at the extreme values of the moderator
+# if they are included in the significant region
+floodlight_2_by_continuous(
+data = mtcars,
+iv_name = "am",
+dv_name = "mpg",
+mod_name = "qsec",
+lines_at_mod_extremes = TRUE)
+}
+# remove the labels for jn points
+floodlight_2_by_continuous(
+data = mtcars,
+iv_name = "am",
+dv_name = "mpg",
+mod_name = "qsec",
+jn_point_label_add = FALSE)
 }

@@ -22,7 +22,7 @@
 #' independent variable ordered using R's base function \code{sort}.
 #' @param output type of output (default = "reg_lines_plot").
 #' Possible inputs: "interactions_pkg_results", "simple_effects_plot",
-#' "jn_points", "reg_lines_plot"
+#' "jn_points", "regions", "reg_lines_plot"
 #' @param jitter_x_percent horizontally jitter dots by a percentage of the
 #' range of x values
 #' @param jitter_y_percent vertically jitter dots by a percentage of the
@@ -31,14 +31,23 @@
 #' 1 = completely opaque). By default, \code{dot_alpha = 0.5}
 #' @param dot_size size of the dots (default = 4)
 #' @param interaction_p_value_font_size font size for the interaction
-#' p value (default = 6)
+#' p value (default = 8)
+#' @param jn_point_label_add logical. Should the labels for
+#' Johnson-Neyman point labels be added to the plot? (default = TRUE)
 #' @param jn_point_font_size font size for Johnson-Neyman point labels
-#' (default = 6)
+#' (default = 8)
 #' @param jn_point_label_hjust a vector of hjust values for
 #' Johnson-Neyman point labels. By default, the hjust value will be 0.5 for
 #' all the points.
+#' @param lines_at_mod_extremes logical. Should vertical lines be
+#' drawn at the observed extreme values of the moderator if those values
+#' lie in siginificant region(s)?
+#' (default = FALSE)
+#' @param interaction_p_vjust By how much should the label for the
+#' interaction p-value be adjusted vertically?
+#' By default, \code{interaction_p_vjust = -3})
 #' @param plot_margin margin for the plot
-#' By default \code{plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt")}
+#' By default \code{plot_margin = ggplot2::unit(c(75, 7, 7, 7), "pt")}
 #' @param legend_position position of the legend (default = "right").
 #' If \code{legend_position = "none"}, the legend will be removed.
 #' @param reg_line_types types of the regression lines for the two levels
@@ -46,6 +55,10 @@
 #' By default, \code{reg_line_types = c("solid", "dashed")}
 #' @param jn_line_types types of the lines for Johnson-Neyman points.
 #' By default, \code{jn_line_types = c("solid", "solid")}
+#' @param jn_line_thickness thickness of the lines at Johnson-Neyman points
+#' (default = 1.5)
+#' @param colors_for_iv colors for the two values of the
+#' independent variable (default = c("red", "blue"))
 #' @param sig_region_color color of the significant region, i.e., range(s)
 #' of the moderator variable for which simple effect of the independent
 #' variable on the dependent variable is statistically significant.
@@ -89,7 +102,6 @@
 #' dv_name = "mpg",
 #' mod_name = "qsec",
 #' covariate_name = c("cyl", "hp"))
-#' }
 #' # adjust the jn point label positions
 #' floodlight_2_by_continuous(
 #' data = mtcars,
@@ -97,6 +109,29 @@
 #' dv_name = "mpg",
 #' mod_name = "qsec",
 #' jn_point_label_hjust = c(1, 0))
+#' # return regions of significance and nonsignificance
+#' floodlight_2_by_continuous(
+#' data = mtcars,
+#' iv_name = "am",
+#' dv_name = "mpg",
+#' mod_name = "qsec",
+#' output = "regions")
+#' # draw lines at the extreme values of the moderator
+#' # if they are included in the significant region
+#' floodlight_2_by_continuous(
+#' data = mtcars,
+#' iv_name = "am",
+#' dv_name = "mpg",
+#' mod_name = "qsec",
+#' lines_at_mod_extremes = TRUE)
+#' }
+#' # remove the labels for jn points
+#' floodlight_2_by_continuous(
+#' data = mtcars,
+#' iv_name = "am",
+#' dv_name = "mpg",
+#' mod_name = "qsec",
+#' jn_point_label_add = FALSE)
 #' @export
 #' @import data.table
 floodlight_2_by_continuous <- function(
@@ -112,13 +147,18 @@ floodlight_2_by_continuous <- function(
     jitter_y_percent = 0,
     dot_alpha = 0.5,
     dot_size = 4,
-    interaction_p_value_font_size = 6,
-    jn_point_font_size = 6,
+    interaction_p_value_font_size = 8,
+    jn_point_label_add = TRUE,
+    jn_point_font_size = 8,
     jn_point_label_hjust = NULL,
-    plot_margin = ggplot2::unit(c(60, 7, 7, 7), "pt"),
+    lines_at_mod_extremes = FALSE,
+    interaction_p_vjust = -3,
+    plot_margin = ggplot2::unit(c(75, 7, 7, 7), "pt"),
     legend_position = "right",
     reg_line_types = c("solid", "dashed"),
     jn_line_types = c("solid", "solid"),
+    jn_line_thickness = 1.5,
+    colors_for_iv = c("red", "blue"),
     sig_region_color = "green",
     sig_region_alpha = 0.08,
     nonsig_region_color = "gray",
@@ -205,8 +245,9 @@ floodlight_2_by_continuous <- function(
   } else {
     # check if the iv levels match
     iv_level_order_character <- as.character(iv_level_order)
-    if (!identical(iv_unique_values_character,
-                   iv_level_order_character)) {
+    if (!identical(
+      iv_unique_values_character,
+      sort(iv_level_order_character))) {
       stop(paste0(
         "\nThe levels of independent variables do not match:\n",
         "iv_level_order input: ",
@@ -226,6 +267,12 @@ floodlight_2_by_continuous <- function(
     iv_binary,
     levels = 0:1,
     labels = c(as.character(iv_level_1), as.character(iv_level_2)))]
+  # min and max of observed mod
+  mod_min_observed <- min(dt[, mod])
+  mod_max_observed <- max(dt[, mod])
+  # min and max of observed dv
+  dv_min_observed <- min(dt[, dv])
+  dv_max_observed <- max(dt[, dv])
   # lm formula
   if (!is.null(covariate_name)) {
     lm_formula <- stats::as.formula(paste0(
@@ -239,15 +286,35 @@ floodlight_2_by_continuous <- function(
     stats::lm(formula = lm_formula, data = dt),
     pred = iv_binary,
     modx = mod)
+  # is the significant region inside or outside
+  sig_inside_vs_outside <- ifelse(
+    attributes(johnson_neyman_result)$inside, "inside", "outside")
   # return the results from the interactions package
   if (output == "interactions_pkg_results") {
     return(johnson_neyman_result)
   }
   # get jn points
   jn_points <- johnson_neyman_result[["bounds"]]
+  # restrict jn points to the observed range of moderator values
+  jn_points_final <- c()
+  for (i in seq_along(jn_points)) {
+    if (jn_points[i] >= mod_min_observed &
+        jn_points[i] <= mod_max_observed) {
+      jn_points_final <- c(
+        jn_points_final, jn_points[jn_points == jn_points[i]])
+    }
+  }
   # return jn points
   if (output == "jn_points") {
-    return(jn_points)
+    return(jn_points_final)
+  }
+  # get regions of significance and nonsignficance
+  if (output == "regions") {
+    regions_of_sig_nonsig <- data.table::data.table(
+      t(jn_points), sig_inside_vs_outside)
+    names(regions_of_sig_nonsig) <-
+      tolower(names(regions_of_sig_nonsig))
+    return(regions_of_sig_nonsig)
   }
   # if there are more than 2 jn points, throw an error
   if (length(jn_points) > 2) {
@@ -258,12 +325,6 @@ floodlight_2_by_continuous <- function(
       "with more than two Johnson-Neyman points."))
     return()
   }
-  # is the significant region inside or outside
-  sig_inside_vs_outside <- ifelse(
-    attributes(johnson_neyman_result)$inside, "inside", "outside")
-  # min and max of observed mod
-  mod_min_observed <- min(dt[, mod])
-  mod_max_observed <- max(dt[, mod])
   # find the overlapping regions
   if (sig_inside_vs_outside == "inside") {
     sig_region <- list(kim::overlapping_interval(
@@ -336,11 +397,14 @@ floodlight_2_by_continuous <- function(
       x = min(dt[, mod]) + x_range * 0.5,
       y = Inf,
       label = interaction_p_value_text,
-      hjust = 0.5, vjust = -3,
+      hjust = 0.5, vjust = interaction_p_vjust,
       fontface = "bold",
       color = "black",
       size = interaction_p_value_font_size)
   }
+  # apply the colors for the two values of the iv
+  g1 <- g1 + ggplot2::scale_color_manual(
+    values = colors_for_iv)
   # apply the theme beforehand
   g1 <- g1 + kim::theme_kim(legend_position = legend_position)
   # allow labeling outside the plot area
@@ -351,7 +415,8 @@ floodlight_2_by_continuous <- function(
   if (length(jn_line_types) == 1) {
     jn_line_types <- rep(jn_line_types, length(unlist(sig_region)))
   }
-  # add a vertical line and label for each jn point
+  # new way of plotting as of jul 26 2023
+  # shade the regions of sig
   if (length(sig_region) > 0) {
     for (i in seq_along(sig_region)) {
       # range of the sig region
@@ -359,24 +424,41 @@ floodlight_2_by_continuous <- function(
       # shade the sig region
       g1 <- g1 + ggplot2::annotate(
         "rect", xmin = temp_range[1], xmax = temp_range[2],
-        ymin = -Inf, ymax = Inf,
+        ymin = dv_min_observed, ymax = dv_max_observed,
         alpha = sig_region_alpha, fill = sig_region_color)
-      for (j in seq_along(temp_range)) {
-        # vertical line
-        g1 <- g1 + ggplot2::geom_vline(
-          xintercept = temp_range[j],
-          linetype = jn_line_types[j],
-          linewidth = 1)
+    }
+  }
+  # add the vertical line at jn points
+  if (length(jn_points_final) >= 1) {
+    if (lines_at_mod_extremes == TRUE) {
+      vertical_line_xintercepts <- intersect(
+        unlist(sig_region), c(
+        mod_min_observed, jn_points_final, mod_max_observed))
+    } else {
+      vertical_line_xintercepts <- jn_points_final
+    }
+    for (i in seq_along(vertical_line_xintercepts)) {
+      g1 <- g1 + ggplot2::annotate(
+        geom = "segment",
+        x = vertical_line_xintercepts[i],
+        y = dv_min_observed,
+        xend = vertical_line_xintercepts[i],
+        yend = dv_max_observed,
+        color = "black",
+        linewidth = jn_line_thickness)
+      if (jn_point_label_add == TRUE) {
         # label jn points
         if (is.null(jn_point_label_hjust)) {
-          jn_point_label_hjust <- rep(0.5, length(temp_range))
+          jn_point_label_hjust <- rep(
+            0.5, length(vertical_line_xintercepts))
         }
         g1 <- g1 + ggplot2::annotate(
           geom = "text",
-          x = temp_range[j],
+          x = vertical_line_xintercepts[i],
           y = Inf,
-          label = round(temp_range[j], round_jn_point_labels),
-          hjust = jn_point_label_hjust[j], vjust = -0.5,
+          label = round(
+            vertical_line_xintercepts[i], round_jn_point_labels),
+          hjust = jn_point_label_hjust[i], vjust = -0.5,
           fontface = "bold",
           color = "black",
           size = jn_point_font_size)

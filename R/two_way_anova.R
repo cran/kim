@@ -35,11 +35,14 @@
 #' @param error_bar_range width of the confidence interval
 #' (default = 0.95 for 95 percent confidence interval).
 #' This argument will not apply when \code{error_bar = "se"}
-#' @param line_size thickness of the lines connecting group means,
-#' (default = 1)
-#' @param dot_size size of the dots indicating group means (default = 3)
 #' @param error_bar_tip_width graphically, width of the segments
 #' at the end of error bars (default = 0.13)
+#' @param error_bar_thickness thickness of the error bars (default = 1)
+#' @param error_bar_caption should a caption be included to indicate
+#' the width of the error bars? (default = TRUE).
+#' @param line_thickness thickness of the lines connecting group means,
+#' (default = 1)
+#' @param dot_size size of the dots indicating group means (default = 3)
 #' @param position_dodge by how much should the group means and error bars
 #' be horizontally offset from each other so as not to overlap?
 #' (default = 0.13)
@@ -94,9 +97,11 @@ two_way_anova <- function(
   plot = FALSE,
   error_bar = "ci",
   error_bar_range = 0.95,
-  line_size = 1,
-  dot_size = 3,
   error_bar_tip_width = 0.13,
+  error_bar_thickness = 1,
+  error_bar_caption = TRUE,
+  line_thickness = 1,
+  dot_size = 3,
   position_dodge = 0.13,
   legend_position = "right",
   output = "anova_table",
@@ -204,9 +209,11 @@ two_way_anova <- function(
       iv_name = c(iv_1_name, iv_2_name),
       error_bar = error_bar,
       error_bar_range = error_bar_range,
-      line_size = line_size,
-      dot_size = dot_size,
       error_bar_tip_width = error_bar_tip_width,
+      error_bar_thickness = error_bar_thickness,
+      error_bar_caption = error_bar_caption,
+      line_thickness = line_thickness,
+      dot_size = dot_size,
       position_dodge = position_dodge,
       legend_position = legend_position)
     if (output == "plot") {
@@ -238,9 +245,17 @@ two_way_anova <- function(
       " instead.\n",
       "Type '?kim::levene_test' for more information."))
   }
+  # save the current contrast
+  prev_option_for_contrasts <- options("contrasts")
+  # apply the new contrasts, web page for reference:
+  # https://web.archive.org/web/20230908042656/http://www.statscanbefun.com/rblog/2015/8/27/ensuring-r-generates-the-same-anova-f-values-as-spss
+  options(contrasts = c("contr.helmert", "contr.poly"))
   # anova instead of regression
   model_1 <- stats::aov(formula = formula_1, data = dt2)
   anova_table <- anova_fn_from_car(model_1, type = 3)
+  # restore the previous contrasts
+  options(contrasts = prev_option_for_contrasts$contrasts)
+  # edit the anova table
   source <- row.names(anova_table)
   data.table::setDT(anova_table)
   anova_table <- data.table::data.table(source, anova_table)
