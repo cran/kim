@@ -1,3 +1,9 @@
+# kim 0.5.422
+* Updated the following function(s) (and other functions that use them): 
+scatterplot, loglinear_analysis, plot_group_means, two_way_anova,
+floodlight_2_by_continuous
+* Added the following function(s): assign_fn_parameters_as_vars
+
 # kim 0.5.421
 * Note to developer(s): "The errors for r-devel are from a recent change
 in r-devel fixing the long-standing PR#14359, to the effect that the 

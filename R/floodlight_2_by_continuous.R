@@ -23,6 +23,8 @@
 #' @param output type of output (default = "reg_lines_plot").
 #' Possible inputs: "interactions_pkg_results", "simple_effects_plot",
 #' "jn_points", "regions", "reg_lines_plot"
+#' @param jitter_x_y_percent horizontally and vertically jitter dots
+#' by a percentage of the respective ranges of x and y values.
 #' @param jitter_x_percent horizontally jitter dots by a percentage of the
 #' range of x values
 #' @param jitter_y_percent vertically jitter dots by a percentage of the
@@ -124,14 +126,14 @@
 #' dv_name = "mpg",
 #' mod_name = "qsec",
 #' lines_at_mod_extremes = TRUE)
-#' }
-#' # remove the labels for jn points
+#' #' # remove the labels for jn points
 #' floodlight_2_by_continuous(
 #' data = mtcars,
 #' iv_name = "am",
 #' dv_name = "mpg",
 #' mod_name = "qsec",
 #' jn_point_label_add = FALSE)
+#' }
 #' @export
 #' @import data.table
 floodlight_2_by_continuous <- function(
@@ -143,6 +145,7 @@ floodlight_2_by_continuous <- function(
     interaction_p_include = TRUE,
     iv_level_order = NULL,
     output = "reg_lines_plot",
+    jitter_x_y_percent = 0,
     jitter_x_percent = 0,
     jitter_y_percent = 0,
     dot_alpha = 0.5,
@@ -209,7 +212,8 @@ floodlight_2_by_continuous <- function(
     stop("Please enter a variable name for the input 'mod_name'")
   }
   # bind the vars locally to the function
-  dv <- iv <- iv_binary <- iv_factor <- mod <- NULL
+  dv <- iv <- iv_binary <- iv_factor <- mod <- mod_dv_concatenated <-
+    x_y_concatenated <- NULL
   # convert to data.table
   dt <- data.table::setDT(data.table::copy(data))
   # remove columns not needed for analysis
@@ -351,7 +355,7 @@ floodlight_2_by_continuous <- function(
     g1 <- g1 + ggplot2::ylab(paste0("Slope of ", iv_name))
     return(g1)
   }
-  # jitter
+  # ranges of x and y for jitter
   x_range <- max(dt[, mod], na.rm = TRUE) - min(dt[, mod], na.rm = TRUE)
   y_range <- max(dt[, dv], na.rm = TRUE) - min(dt[, dv], na.rm = TRUE)
   # plot
@@ -365,6 +369,21 @@ floodlight_2_by_continuous <- function(
   if (!is.null(covariate_name)) {
     dot_alpha <- 0
     dot_alpha <- 0
+  }
+  # add jitter if any pair of dots overlap
+  dt[, mod_dv_concatenated := paste0(mod, dv)]
+  if (any(duplicated(dt[, mod_dv_concatenated]))) {
+    jitter_x_y_percent <- 2
+    kim::pm(
+      "Because at least one pair of dots overlapped, ",
+      "the dots were\njittered vertically and horizontally by ",
+      jitter_x_y_percent, "%",
+      " (of the observed range).")
+  }
+  # add jitter
+  if (jitter_x_y_percent > 0) {
+    jitter_x_percent <- jitter_x_y_percent
+    jitter_y_percent <- jitter_x_y_percent
   }
   g1 <- g1 + ggplot2::geom_point(
     size = dot_size,
@@ -433,7 +452,7 @@ floodlight_2_by_continuous <- function(
     if (lines_at_mod_extremes == TRUE) {
       vertical_line_xintercepts <- intersect(
         unlist(sig_region), c(
-        mod_min_observed, jn_points_final, mod_max_observed))
+          mod_min_observed, jn_points_final, mod_max_observed))
     } else {
       vertical_line_xintercepts <- jn_points_final
     }
@@ -470,7 +489,7 @@ floodlight_2_by_continuous <- function(
     g1 <- g1 + ggplot2::xlab(mod_name)
   } else {
     if (x_axis_title == FALSE) {
-      g1 <- g1 + ggplot2::theme(axis.title.x = element_blank())
+      g1 <- g1 + ggplot2::theme(axis.title.x = ggplot2::element_blank())
     } else {
       g1 <- g1 + ggplot2::xlab(x_axis_title)
     }
@@ -480,7 +499,7 @@ floodlight_2_by_continuous <- function(
     g1 <- g1 + ggplot2::ylab(dv_name)
   } else {
     if (y_axis_title == FALSE) {
-      g1 <- g1 + ggplot2::theme(axis.title.y = element_blank())
+      g1 <- g1 + ggplot2::theme(axis.title.y = ggplot2::element_blank())
     } else {
       g1 <- g1 + ggplot2::ylab(y_axis_title)
     }
@@ -492,7 +511,7 @@ floodlight_2_by_continuous <- function(
       linetype = iv_name)
   } else {
     if (legend_title == FALSE) {
-      g1 <- g1 + ggplot2::theme(legend.title = element_blank())
+      g1 <- g1 + ggplot2::theme(legend.title = ggplot2::element_blank())
     } else {
       g1 <- g1 + ggplot2::labs(
         color = legend_title,

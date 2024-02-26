@@ -1,10 +1,11 @@
-a5b8fc45674d7e1f9f52073c560dae94 *DESCRIPTION
-a71d6797d673197fe7ff3d574cad6689 *NAMESPACE
-de394ce22e21c9431853a8f934a15a5d *NEWS.md
+769a0f9355efa87da85347b05b67a246 *DESCRIPTION
+acff266a5b3b7ab2ea779bc57489ba07 *NAMESPACE
+10b539e22307a08945000a05181de320 *NEWS.md
 99703fcaa3fc2a9acf963f9fa9f1396e *R/akaike_weights.R
+0876b9d24cb8c681c1967aaaa08a4650 *R/assign_fn_parameters_as_vars.R
 61c36649a57dae378ecc3c85dab430d4 *R/barplot_for_counts.R
 139809a73f2d17a240c1277f10d09949 *R/binomial_test.R
-915f2be324fe7df7d00a79ce1ae0adc2 *R/bracket.R
+dae747b2d6a716913d198e39541618e0 *R/bracket.R
 f91999523203339b891d6a060adf6d73 *R/capitalize.R
 68b1734a0fc63f79819d6c6a95e9dbc3 *R/change_var_names.R
 c5267e630a0d7d578c7192300d93ab53 *R/check_modes.R
@@ -17,7 +18,7 @@ b740bbccbc0cc26bbb2e195cffbd4d83 *R/coefficient_of_variation.R
 690a057df7134ce831558e47a0477b68 *R/cohen_d_borenstein.R
 dfe8bb84e7a32239293af98b5f592e1b *R/cohen_d_for_one_sample.R
 ada7232a7ad5d3d046e5067dd3f605e4 *R/cohen_d_from_cohen_textbook.R
-bc43b22d5df9416cc08d34479afc2fc3 *R/cohen_d_over_n.R
+46709a05a982b445db1c3d4b82f2d724 *R/cohen_d_over_n.R
 80ba10f62adf08bf62ca4c35201a7858 *R/cohen_d_to_r.R
 12f98ebd8dab3b7ab8aa66a179ddf8e0 *R/cohen_d_torchiano.R
 1bd61eb9e85ee19597cfa976a416090e *R/combine_data_across_cols.R
@@ -41,11 +42,11 @@ e460b49976a0f89ef63a45a2338ea885 *R/duplicated_values.R
 b7310fdff9e44b756ba40f0462cce2c5 *R/exit_from_parent_function.R
 c55e3a2cbc0885aabd665a5a4d9fed2e *R/find_duplicates.R
 4985d082c1a0c3b94d5a072fa48ee557 *R/fisher_z_transform.R
-57df17ddd5fada330ca9f49c4bf76e67 *R/floodlight_2_by_continuous.R
-8e0c2697efe77c1e2100bba5ccf66bbb *R/floodlight_2_by_continuous_for_logistic.R
-20642556112d8bfbc2545df937acaafd *R/floodlight_2_by_continuous_mlm_logistic.R
-5cceb4891065dcb048b002fd6a5cef6a *R/floodlight_for_contrasts.R
-a818a3c39c10ef3abcc0f9abe4f56be7 *R/floodlight_multi_by_continuous.R
+88c3f79d6f814da7449fcead9c17f51f *R/floodlight_2_by_continuous.R
+70eb4a47825d8bc5a2c07af98b9584de *R/floodlight_2_by_continuous_for_logistic.R
+528ca138da402ee8e33ffcbb580311b3 *R/floodlight_2_by_continuous_mlm_logistic.R
+fe41315d476553eab31d5a0b6e004887 *R/floodlight_for_contrasts.R
+755dffeb61e4ea02b6f4f8a99030e30d *R/floodlight_multi_by_continuous.R
 b9f8cec28964718c7673c0bb9fc12a2e *R/forest_plot.R
 7624c0e7075178f301f9a3c7deaab1de *R/geomean.R
 fb30ca50a824ea5756f60685d7be8058 *R/ggsave_quick.R
@@ -54,7 +55,7 @@ fb30ca50a824ea5756f60685d7be8058 *R/ggsave_quick.R
 1eb7d6c44180a0b845a8842ac1d8d061 *R/histogram_by_group.R
 8ec7d010374f2053cd373fda69e3eea1 *R/histogram_deprecated_1.R
 665ab1cc85ef9ec8964cdce14671ff05 *R/histogram_from_hist.R
-268b7316405eea30a744322a607ae58f *R/histogram_w_outlier_bins.R
+4ad32a491ed7c7cc00279ad6c5baa82a *R/histogram_w_outlier_bins.R
 91c6d50c8fad458c211ab682f4f7acbb *R/holm_adjusted_p_values.R
 fee1c4869aaa62f9975749e38ddb778c *R/id_across_datasets.R
 07bc29f610be71f50dd40caa371985bb *R/identical_all.R
@@ -67,7 +68,7 @@ bc34f4e36827c82b05a1de64ebf46f57 *R/log_odds_ratio_to_d.R
 fd2644051da9e7c770f5ba8de5ff6b71 *R/logistic_reg_w_interaction.R
 dc9c5996b0ba3e135abfeec15b5b738f *R/logistic_regression.R
 4998cfeb59538c3fda1c28c64de3f9b6 *R/logistic_regression_table.R
-6d910573e2ba1e802f85c6c1c41c2cfa *R/loglinear_analysis.R
+be1c7547eba5859bc1c9162864e83d48 *R/loglinear_analysis.R
 0fd7224ef6d92d92f44abd2c6815c645 *R/mad_remove_outliers.R
 0e718cf712d30d5605eab1d94c4220e4 *R/mann_whitney.R
 32c24228d7c67bcba308d4d896dc3b0f *R/matrix_prep_dt.R
@@ -88,7 +89,7 @@ e12fb7ba9d8f6d62cefc6c69c39b1e7d *R/package_list_default.R
 541768302758b56c946333decf670122 *R/parallel_analysis.R
 d007f9f38d393f1d85076cbd80c5bbf2 *R/percentile_rank.R
 7f701942c90ce626438b2dae7f626f1a *R/pivot_table.R
-f7448bb8bd7e28e641a00a13f647fe10 *R/plot_group_means.R
+e20f851722564d6606c237802808a91c *R/plot_group_means.R
 7c33e462bd5df27a9e8b73746fbf0e0f *R/pm.R
 c266dbb6aff84900d78b847701af8bee *R/population_variance.R
 d5f2abaf7f9d1ca63feed5cb1262f7cd *R/prep.R
@@ -108,7 +109,7 @@ e04a8a177b0d3d2ad36bba4523f4f38c *R/repeated_measures_anova.R
 1d63d66109a1d26a35149fa58ca188a1 *R/replace_values_in_dt.R
 5fedbc821fb3c201712c5b997f0941a3 *R/robust_regression.R
 20ef69c9c985322343668ca2fa1d9f17 *R/round_flexibly.R
-65ed7308b1eff513b53d613153ee79d3 *R/scatterplot.R
+e22c009aa8eaeb7d6ed927e67ce25b65 *R/scatterplot.R
 89725f3b8d3fd15077b68590b3ed2ad4 *R/score_scale_items.R
 4d09bb361d91fe43b38a907e8ba212b8 *R/se_of_mean.R
 c9e6ddca7e7d8f29c94524e4872cb1d4 *R/se_of_percentage.R
@@ -117,7 +118,7 @@ aea0eaf11a7d08c1cd3c30d39a99154c *R/setup_r_env.R
 5bc81d03b22bac29eaf402194ef55fb7 *R/setwd_to_active_doc.R
 e7114f92c1a367c671891fefa91efe66 *R/simple_effects_analysis.R
 886760bd503e2bf16130d9153587fc82 *R/skewness.R
-b4467dfd1e2f185932ccfa9e8ce2fc7e *R/spotlight_2_by_continuous.R
+6fb5f1fa8252e9e6b200660d40d5ab29 *R/spotlight_2_by_continuous.R
 c31d70320718c6f4555fe4ef7dcf163f *R/standardize.R
 19c314f79cd2491263f5032e1c0272e2 *R/standardized_regression.R
 9053dddc7459e13545c2199710eeca19 *R/start_kim.R
@@ -128,7 +129,7 @@ dbc9e977b120c21403dc3aa7f8a4d9a0 *R/t_test_pairwise.R
 dd18df98edc2b5c58fc6511f7d718327 *R/theme_kim.R
 8e4c7b2f546b69216010556f29bb0fd1 *R/top_median_or_bottom.R
 41adc735609762107b1911f13cc4dfa5 *R/tv.R
-199de21279ab8f6414e9abadb211ad4b *R/two_way_anova.R
+2ae9c605960a6129b7bd4ca1324dc5e6 *R/two_way_anova.R
 ed212671b7b72ca73a83f24b315ab61d *R/und.R
 0577cfabad38f1334418ff68d56b63c3 *R/unload_user_installed_pkgs.R
 b171df928022440fe688fd9ad34a1f57 *R/update_kim.R
@@ -144,12 +145,13 @@ cc89888bbc3201c16f0e02a1e502c4d5 *R/wilcoxon_rank_sum_test.R
 14498e646305fa41038a6dfdac7c4a36 *R/z_score.R
 88008cfa0e83b28759938f1f3e0e25df *R/z_to_r_transform.R
 6ce4f8dad0a61c39e1aeeb55e485f952 *README.md
-afbe4209b3bb961ba3e41cbfe79ea507 *build/partial.rdb
-a6fa591fe4435466d3db7025fd0ebb26 *inst/CITATION
+b943a1546a1e17be4eea235ec7b4616b *build/partial.rdb
+be97a7e4367f09b1e2efc2f05175c2af *inst/CITATION
 984fd88351eba997a3e29741599465c2 *man/akaike_weights.Rd
+8ff0c5f6072050be4b624f5c9056a5dd *man/assign_fn_parameters_as_vars.Rd
 1e0ed58df595c20d8ee51a4a5fcd137e *man/barplot_for_counts.Rd
 7b7a5dd3166bb3bd87fa20d33f1e7f29 *man/binomial_test.Rd
-4d76d433ef3f0ed7cf77762df6f999db *man/bracket.Rd
+9948bf1e2200658561372f0ce23b9448 *man/bracket.Rd
 b3583f13217d3f3d577194d823e4908c *man/capitalize.Rd
 054c3bd0c88e9581b7c5c5c9bf6d2322 *man/change_var_names.Rd
 c24f572080696be6630dc329a4c6fcfa *man/check_modes.Rd
@@ -186,7 +188,7 @@ eb1d9092aed4dcf0b8166844f8c1e8e7 *man/duplicated_values.Rd
 3fa8bb8154b56ec1bb4c0db1bbc113a2 *man/exit_from_parent_function.Rd
 1de9c2b5948be3d43d948cb6f8ed3d67 *man/find_duplicates.Rd
 0f4a68a2f7b4a576693480465c3f58dd *man/fisher_z_transform.Rd
-9ceb1b0bf899b4cf698cb2f86ff8fb1d *man/floodlight_2_by_continuous.Rd
+90000442e1730e100f10a9b891ac528b *man/floodlight_2_by_continuous.Rd
 88d1c7fd3e132e96f77487d61b50565b *man/floodlight_2_by_continuous_logistic.Rd
 7117268e20cc9e316f5cbe39657b89a0 *man/floodlight_2_by_continuous_mlm_logistic.Rd
 9be613a9d3edaaa02c0eeb1a530a0be3 *man/floodlight_for_contrasts.Rd
@@ -231,7 +233,7 @@ a3716a2d4a9d4d95abd20803bb2de6d0 *man/overlapping_interval.Rd
 b653ffc3eb15322428b4a3d307aef27f *man/parallel_analysis.Rd
 b287a7e9eb426eabe1089aa718cf4e57 *man/percentile_rank.Rd
 bfb37f702388a09e4d7de442ab5946e7 *man/pivot_table.Rd
-2ba1d3669dd624b63f406b995d510b80 *man/plot_group_means.Rd
+dabbebe2432cc14c52a14c3ccee90941 *man/plot_group_means.Rd
 d4788bab7e85de4dea910a5024e106cc *man/pm.Rd
 f4c201b7be7af11ea6f66f7010bdfd6f *man/population_variance.Rd
 48ef275c099cbcb85c5e5b629fffe355 *man/prep.Rd
@@ -251,7 +253,7 @@ ac8dfcd6ea162524ec8aea4f87ae7548 *man/rel_pos_of_value_in_vector.Rd
 c538ac880e9293a5a7098516efa53ade *man/replace_values_in_dt.Rd
 e8acbdf3ba9437e6fb648df13263e376 *man/robust_regression.Rd
 320869368ba5e4cff16c37a5aeda380a *man/round_flexibly.Rd
-b1e87d558a5978f990fcb87995475414 *man/scatterplot.Rd
+1b7ae280d4098e2e88cad3ea7b42d8f0 *man/scatterplot.Rd
 ba43b742e727c4a156cda74f2362c997 *man/score_scale_items.Rd
 269a4a6ff09cc9cfbd0f45473c26ecdf *man/se_of_mean.Rd
 af5b970c6580287046d7887cc87031a7 *man/se_of_percentage.Rd
@@ -260,7 +262,7 @@ af5b970c6580287046d7887cc87031a7 *man/se_of_percentage.Rd
 366ab877f7b6d689eac97d83d9fe2bcc *man/setwd_to_active_doc.Rd
 ac6489e2fb5139593321eafd7f06d33b *man/simple_effects_analysis.Rd
 9d903a3a1d39bd4a08960a14e47e71a0 *man/skewness.Rd
-d6d3706f6100d7d3ba61a07191165674 *man/spotlight_2_by_continuous.Rd
+9939fc3aa4aa442b4ee22cc633008380 *man/spotlight_2_by_continuous.Rd
 e07b741768a6354eeff34e49eb9bb0fe *man/standardize.Rd
 ebbc731ac00c9975df936fd8fa1533ee *man/standardized_regression.Rd
 095320d329272d24e07aac08979ae40c *man/start_kim.Rd
@@ -271,7 +273,7 @@ c3e9376bd448440b88edd2461fe5f771 *man/tau_squared.Rd
 ee3a01b8c4acd84898c37eab2c79dc05 *man/theme_kim.Rd
 5947236f9f60af84e4cec9604c641037 *man/top_median_or_bottom.Rd
 7aaefe170fe9f5eb9a427a6a065b0385 *man/tv.Rd
-a51bf28ab2ffbcd3daeb9102d25e2d85 *man/two_way_anova.Rd
+76244f6859df83900f09888dc0580313 *man/two_way_anova.Rd
 fffa88bdf31e96db22a17265f6c50d4c *man/und.Rd
 0f8b91036725fc94a0f8b44d0a7c5a99 *man/unload_user_installed_pkgs.Rd
 338869c0be79a1beb23a1a9f109ae156 *man/update_kim.Rd
@@ -286,4 +288,3 @@ a60e86efdede16f0ffcff5a1f9deddb9 *man/wilcoxon_rank_sum_test.Rd
 f8a196d1f50274606c596b240c2f1c61 *man/write_csv.Rd
 4e147acd2e404a09c23b2cf82867cc81 *man/z_score.Rd
 415e75fa8cd9b1881404855beac3e1bf *man/z_to_r_transform.Rd
-3f204c78a4d3a68395761897f35c02bb *tests/testthat/testthat.R

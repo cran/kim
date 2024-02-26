@@ -28,7 +28,8 @@
 #' The default is set at 2000, but consider increasing the number
 #' of samples to 5000, 10000, or an even larger number, if slower
 #' handling time is not an issue.
-#' @param plot if \code{TRUE}, print a plot and enable returning an output.
+#' @param plot if \code{TRUE}, print a plot and enable returning an output
+#' (default = TRUE)
 #' @param error_bar if \code{error_bar = "se"}; error bars will be +/-1
 #' standard error; if \code{error_bar = "ci"} error bars will be a
 #' confidence interval
@@ -40,12 +41,32 @@
 #' @param error_bar_thickness thickness of the error bars (default = 1)
 #' @param error_bar_caption should a caption be included to indicate
 #' the width of the error bars? (default = TRUE).
+#' @param line_colors colors of the lines connecting means (default = NULL)
+#' If the second IV has two levels, then by default,
+#' \code{line_colors = c("red", "blue")}
+#' @param line_types types of the lines connecting means (default = NULL)
+#' If the second IV has two levels, then by default,
+#' \code{line_types = c("solid", "dashed")}
 #' @param line_thickness thickness of the lines connecting group means,
 #' (default = 1)
 #' @param dot_size size of the dots indicating group means (default = 3)
 #' @param position_dodge by how much should the group means and error bars
 #' be horizontally offset from each other so as not to overlap?
 #' (default = 0.13)
+#' @param x_axis_title a character string for the x-axis title. If no
+#' input is entered, then, by default, the first value of
+#' \code{iv_name} will be used as the x-axis title.
+#' @param y_axis_title a character string for the y-axis title. If no
+#' input is entered, then, by default, \code{dv_name} will be used
+#' as the y-axis title.
+#' @param y_axis_title_vjust position of the y axis title (default = 0.85).
+#' By default, \code{y_axis_title_vjust = 0.85}, which means that the
+#' y axis title will be positioned at 85% of the way up from the bottom
+#' of the plot.
+#' @param legend_title a character for the legend title. If no input
+#' is entered, then, by default, the second value of \code{iv_name}
+#' will be used as the legend title. If \code{legend_title = FALSE},
+#' then the legend title will be removed.
 #' @param legend_position position of the legend:
 #' \code{"none", "top", "right", "bottom", "left", "none"}
 #' (default = \code{"right"})
@@ -94,15 +115,21 @@ two_way_anova <- function(
   sigfigs = 3,
   robust = FALSE,
   iterations = 2000,
-  plot = FALSE,
+  plot = TRUE,
   error_bar = "ci",
   error_bar_range = 0.95,
   error_bar_tip_width = 0.13,
   error_bar_thickness = 1,
   error_bar_caption = TRUE,
+  line_colors = NULL,
+  line_types = NULL,
   line_thickness = 1,
   dot_size = 3,
   position_dodge = 0.13,
+  x_axis_title = NULL,
+  y_axis_title = NULL,
+  y_axis_title_vjust = 0.85,
+  legend_title = NULL,
   legend_position = "right",
   output = "anova_table",
   png_name = NULL,
@@ -212,9 +239,15 @@ two_way_anova <- function(
       error_bar_tip_width = error_bar_tip_width,
       error_bar_thickness = error_bar_thickness,
       error_bar_caption = error_bar_caption,
+      line_colors = line_colors,
+      line_types = line_types,
       line_thickness = line_thickness,
       dot_size = dot_size,
       position_dodge = position_dodge,
+      x_axis_title = x_axis_title,
+      y_axis_title = y_axis_title,
+      y_axis_title_vjust = y_axis_title_vjust,
+      legend_title = legend_title,
       legend_position = legend_position)
     if (output == "plot") {
       return(g1)

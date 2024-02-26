@@ -12,7 +12,8 @@ scatterplot(
   weight_var_name = NULL,
   alpha = 1,
   annotate_stats = TRUE,
-  annotate_y_pos = 5,
+  annotate_y_pos_rel = 5,
+  annotate_y_pos_abs = NULL,
   annotated_stats_color = "green4",
   annotated_stats_font_size = 6,
   annotated_stats_font_face = "bold",
@@ -23,17 +24,19 @@ scatterplot(
   dot_color = "black",
   x_axis_label = NULL,
   y_axis_label = NULL,
+  x_axis_tick_marks = NULL,
+  y_axis_tick_marks = NULL,
   dot_size = 2,
   dot_label_size = NULL,
   dot_size_range = c(3, 12),
+  jitter_x_y_percent = 0,
   jitter_x_percent = 0,
   jitter_y_percent = 0,
-  jitter_x_y_percent = 0,
   cap_axis_lines = TRUE,
   color_dots_by = NULL,
   png_name = NULL,
   save_as_png = FALSE,
-  width = 16,
+  width = 13,
   height = 9
 )
 }
@@ -57,13 +60,23 @@ the line of fit}
 \item{annotate_stats}{if \code{TRUE}, the correlation and p-value will
 be annotated at the top of the plot (default = TRUE)}
 
-\item{annotate_y_pos}{position of the annotated stats, expressed
+\item{annotate_y_pos_rel}{position of the annotated stats, expressed
 as a percentage of the range of y values by which the annotated
 stats will be placed above the maximum value of y in the data set
-(default = 5). If \code{annotate_y_pos = 5}, and the minimum and
+(default = 5). This value will be determined relative to the data.
+If \code{annotate_y_pos_rel = 5}, and the minimum and
 maximum y values in the data set are 0 and 100, respectively,
 the annotated stats will be placed at 5\% of the y range (100 - 0)
 above the maximum y value, y = 0.05 * (100 - 0) + 100 = 105.}
+
+\item{annotate_y_pos_abs}{as an alternative to the argument
+\code{annotate_y_pos_rel}, the input for this argument will determine the
+position of the annotated stats. If \code{annotate_y_pos_abs = 7.5},
+then the annotated stats will be placed at the y coordinate of 7.5.
+By default, this argument will be ignored unless it receives an input.
+That is, by default, the function will use the default value of
+the \code{annotate_y_pos_rel} argument to determine the y coordinate
+of the annotated stats.}
 
 \item{annotated_stats_color}{color of the annotated stats
 (default = "green4").}
@@ -92,6 +105,12 @@ confidence interval for the line of fit will be shaded}
 
 \item{y_axis_label}{alternative label for the y axis}
 
+\item{x_axis_tick_marks}{a numeric vector indicating the
+positions of the tick marks on the x axis}
+
+\item{y_axis_tick_marks}{a numeric vector indicating the
+positions of the tick marks on the y axis}
+
 \item{dot_size}{size of the dots on the plot (default = 2)}
 
 \item{dot_label_size}{size for dots' labels on the plot. If no
@@ -103,14 +122,14 @@ dot sizes will be determined by the argument \code{dot_size_range}}
 \item{dot_size_range}{minimum and maximum size for dots
 on the plot when they are weighted}
 
+\item{jitter_x_y_percent}{horizontally and vertically jitter dots
+by a percentage of the respective ranges of x and y values.}
+
 \item{jitter_x_percent}{horizontally jitter dots by a percentage of the
 range of x values.}
 
 \item{jitter_y_percent}{vertically jitter dots by a percentage of the
 range of y values}
-
-\item{jitter_x_y_percent}{horizontally and vertically jitter dots
-by a percentage of the range of x and y values.}
 
 \item{cap_axis_lines}{logical. Should the axis lines be capped at the
 outer tick marks? (default = TRUE)}
@@ -161,5 +180,8 @@ scatterplot(
   data = mtcars, x_var_name = "wt", y_var_name = "mpg",
   dot_label_var_name = "hp", weight_var_name = "cyl",
   dot_label_size = 7, annotate_stats = TRUE)
+scatterplot(
+data = mtcars, x_var_name = "wt", y_var_name = "mpg",
+color_dots_by = "gear")
 }
 }

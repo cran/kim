@@ -23,6 +23,9 @@
 #' the width of the error bars? (default = TRUE).
 #' @param lines_connecting_means logical. Should lines connecting means
 #' within each group be drawn? (default = TRUE)
+#' @param line_colors colors of the lines connecting means (default = NULL)
+#' If the second IV has two levels, then by default,
+#' \code{line_colors = c("red", "blue")}
 #' @param line_types types of the lines connecting means (default = NULL)
 #' If the second IV has two levels, then by default,
 #' \code{line_types = c("solid", "dashed")}
@@ -34,12 +37,23 @@
 #' @param position_dodge by how much should the group means and error bars
 #' be horizontally offset from each other so as not to overlap?
 #' (default = 0.13)
+#' @param x_axis_title a character string for the x-axis title. If no
+#' input is entered, then, by default, the first value of
+#' \code{iv_name} will be used as the x-axis title.
+#' @param y_axis_title a character string for the y-axis title. If no
+#' input is entered, then, by default, \code{dv_name} will be used
+#' as the y-axis title.
+#' @param y_axis_title_vjust position of the y axis title (default = 0.85).
+#' By default, \code{y_axis_title_vjust = 0.85}, which means that the
+#' y axis title will be positioned at 85% of the way up from the bottom
+#' of the plot.
+#' @param legend_title a character for the legend title. If no input
+#' is entered, then, by default, the second value of \code{iv_name}
+#' will be used as the legend title. If \code{legend_title = FALSE},
+#' then the legend title will be removed.
 #' @param legend_position position of the legend:
 #' \code{"none", "top", "right", "bottom", "left", "none"}
 #' (default = \code{"right"})
-#' @param y_axis_title_vjust position of the y axis title (default = 0.85).
-#' If default is used, \code{y_axis_title_vjust = 0.85}, the y axis title
-#' will be positioned at 85% of the way up from the bottom of the plot.
 #' @return by default, the output will be a ggplot object.
 #' If \code{output = "table"}, the output will be a data.table object.
 #' @examples
@@ -53,26 +67,39 @@
 #'   data = mtcars, dv_name = "mpg", iv_name = c("vs", "am"),
 #'   error_bar = "pi", error_bar_range = 0.99
 #' )
+#' # set line colors and types manually
+#' plot_group_means(
+#' data = mtcars, dv_name = "mpg", iv_name = c("vs", "am"),
+#' line_colors = c("green4", "purple"),
+#' line_types = c("solid", "solid"))
+#' # remove axis titles
+#' plot_group_means(
+#' data = mtcars, dv_name = "mpg", iv_name = c("vs", "am"),
+#' x_axis_title = FALSE, y_axis_title = FALSE, legend_title = FALSE)
 #' }
 #' @export
 plot_group_means <- function(
-  data = NULL,
-  dv_name = NULL,
-  iv_name = NULL,
-  na.rm = TRUE,
-  error_bar = "ci",
-  error_bar_range = 0.95,
-  error_bar_tip_width = 0.13,
-  error_bar_thickness = 1,
-  error_bar_caption = TRUE,
-  lines_connecting_means = TRUE,
-  line_types = NULL,
-  line_thickness = 1,
-  line_size = NULL,
-  dot_size = 3,
-  position_dodge = 0.13,
-  legend_position = "right",
-  y_axis_title_vjust = 0.85) {
+    data = NULL,
+    dv_name = NULL,
+    iv_name = NULL,
+    na.rm = TRUE,
+    error_bar = "ci",
+    error_bar_range = 0.95,
+    error_bar_tip_width = 0.13,
+    error_bar_thickness = 1,
+    error_bar_caption = TRUE,
+    lines_connecting_means = TRUE,
+    line_colors = NULL,
+    line_types = NULL,
+    line_thickness = 1,
+    line_size = NULL,
+    dot_size = 3,
+    position_dodge = 0.13,
+    x_axis_title = NULL,
+    y_axis_title = NULL,
+    y_axis_title_vjust = 0.85,
+    legend_title = NULL,
+    legend_position = "right") {
   # check if Package 'ggplot2' is installed
   if (!"ggplot2" %in% rownames(utils::installed.packages())) {
     message(paste0(
@@ -137,8 +164,22 @@ plot_group_means <- function(
   }
   # set defaults if there are two levels in IV 2
   if (num_of_levels_in_iv2 == 2) {
-    line_types = c("solid", "dashed")
-    line_colors = c("red", "blue")
+    if (is.null(line_colors)) {
+      line_colors = c("red", "blue")
+    }
+    if (is.null(line_types)) {
+      line_types = c("solid", "dashed")
+    }
+  }
+  # set line colors
+  if (!is.null(line_colors)) {
+    g1 <- g1 + ggplot2::scale_color_manual(
+      values = line_colors)
+  }
+  # set line types
+  if (!is.null(line_types)) {
+    g1 <- g1 + ggplot2::scale_linetype_manual(
+      values = line_types)
   }
   # The errorbars will overlap,
   # so use position_dodge to move them horizontally
@@ -147,10 +188,6 @@ plot_group_means <- function(
   if (lines_connecting_means == TRUE) {
     g1 <- g1 + ggplot2::geom_line(
       linewidth = line_thickness, position = pd)
-    if (!is.null(line_types)) {
-      g1 <- g1 + ggplot2::scale_linetype_manual(
-        values = line_types)
-    }
   }
   g1 <- g1 + ggplot2::geom_point(size = dot_size, position = pd)
   if (length(iv_name) == 2) {
@@ -160,9 +197,9 @@ plot_group_means <- function(
   if (error_bar == "ci") {
     g1 <- g1 + ggplot2::geom_errorbar(ggplot2::aes(
       ymin = dt2$ci_95_ll, ymax = dt2$ci_95_ul),
-    width = error_bar_tip_width,
-    size = error_bar_thickness,
-    position = pd)
+      width = error_bar_tip_width,
+      linewidth = error_bar_thickness,
+      position = pd)
     error_bar_desc_text <- paste0(
       error_bar_range * 100, "% confidence intervals")
   }
@@ -170,17 +207,17 @@ plot_group_means <- function(
     g1 <- g1 + ggplot2::geom_errorbar(ggplot2::aes(
       ymin = dt2$mean - dt2$se,
       ymax = dt2$mean + dt2$se),
-    width = error_bar_tip_width,
-    size = error_bar_thickness,
-    position = pd)
+      width = error_bar_tip_width,
+      linewidth = error_bar_thickness,
+      position = pd)
     error_bar_desc_text <- "one standard error (+/- 1 SE)"
   }
   if (error_bar == "pi") {
     g1 <- g1 + ggplot2::geom_errorbar(ggplot2::aes(
       ymin = dt2$pi_95_ll, ymax = dt2$pi_95_ul),
-    width = error_bar_tip_width,
-    size = error_bar_thickness,
-    position = pd)
+      width = error_bar_tip_width,
+      linewidth = error_bar_thickness,
+      position = pd)
     error_bar_desc_text <- paste0(
       error_bar_range * 100, "% prediction intervals"
     )
@@ -190,11 +227,7 @@ plot_group_means <- function(
       )
     }
   }
-  g1 <- g1 + ggplot2::xlab(iv_name[1])
-  g1 <- g1 + ggplot2::ylab(dv_name)
-  g1 <- g1 + ggplot2::labs(
-    color = iv_name[2],
-    linetype = iv_name[2])
+  # error bar caption
   if (error_bar_caption == TRUE) {
     g1 <- g1 + ggplot2::labs(
       caption = paste0(
@@ -208,5 +241,38 @@ plot_group_means <- function(
   g1 <- g1 + ggplot2::theme(
     legend.spacing.y = ggplot2::unit(1, "cm"),
     legend.key.size = ggplot2::unit(3, "lines"))
+  # x axis title
+  if (is.null(x_axis_title)) {
+    g1 <- g1 + ggplot2::xlab(iv_name[1])
+  }  else if (x_axis_title == FALSE) {
+    g1 <- g1 + ggplot2::theme(
+      axis.title.x = ggplot2::element_blank())
+  } else {
+    g1 <- g1 + ggplot2::xlab(x_axis_title)
+  }
+  # y axis title
+  if (is.null(y_axis_title)) {
+    g1 <- g1 + ggplot2::ylab(dv_name)
+  } else if (y_axis_title == FALSE) {
+    g1 <- g1 + ggplot2::theme(
+      axis.title.y = ggplot2::element_blank())
+  } else {
+    g1 <- g1 + ggplot2::ylab(y_axis_title)
+  }
+  # legend
+  if (is.null(legend_title)) {
+    g1 <- g1 + ggplot2::labs(
+      color = iv_name[2],
+      linetype = iv_name[2])
+  } else if (legend_title == FALSE) {
+    g1 <- g1 + ggplot2::guides(
+      color = ggplot2::guide_legend(title = NULL),
+      linetype = ggplot2::guide_legend(title = NULL)) +
+      ggplot2::theme(legend.title = ggplot2::element_blank())
+  } else {
+    g1 <- g1 + ggplot2::labs(
+      color = legend_title,
+      linetype = legend_title)
+  }
   return(g1)
 }

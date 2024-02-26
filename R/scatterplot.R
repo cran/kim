@@ -20,13 +20,22 @@
 #' 1 = completely opaque)
 #' @param annotate_stats if \code{TRUE}, the correlation and p-value will
 #' be annotated at the top of the plot (default = TRUE)
-#' @param annotate_y_pos position of the annotated stats, expressed
+#' @param annotate_y_pos_rel position of the annotated stats, expressed
 #' as a percentage of the range of y values by which the annotated
 #' stats will be placed above the maximum value of y in the data set
-#' (default = 5). If \code{annotate_y_pos = 5}, and the minimum and
+#' (default = 5). This value will be determined relative to the data.
+#' If \code{annotate_y_pos_rel = 5}, and the minimum and
 #' maximum y values in the data set are 0 and 100, respectively,
 #' the annotated stats will be placed at 5% of the y range (100 - 0)
 #' above the maximum y value, y = 0.05 * (100 - 0) + 100 = 105.
+#' @param annotate_y_pos_abs as an alternative to the argument
+#' \code{annotate_y_pos_rel}, the input for this argument will determine the
+#' position of the annotated stats. If \code{annotate_y_pos_abs = 7.5},
+#' then the annotated stats will be placed at the y coordinate of 7.5.
+#' By default, this argument will be ignored unless it receives an input.
+#' That is, by default, the function will use the default value of
+#' the \code{annotate_y_pos_rel} argument to determine the y coordinate
+#' of the annotated stats.
 #' @param annotated_stats_color color of the annotated stats
 #' (default = "green4").
 #' @param annotated_stats_font_size font size of the annotated stats
@@ -44,6 +53,10 @@
 #' @param dot_color color of the dots (default = "black")
 #' @param x_axis_label alternative label for the x axis
 #' @param y_axis_label alternative label for the y axis
+#' @param x_axis_tick_marks a numeric vector indicating the
+#' positions of the tick marks on the x axis
+#' @param y_axis_tick_marks a numeric vector indicating the
+#' positions of the tick marks on the y axis
 #' @param dot_size size of the dots on the plot (default = 2)
 #' @param dot_label_size size for dots' labels on the plot. If no
 #' input is entered for this argument, it will be set as
@@ -53,7 +66,7 @@
 #' @param dot_size_range minimum and maximum size for dots
 #' on the plot when they are weighted
 #' @param jitter_x_y_percent horizontally and vertically jitter dots
-#' by a percentage of the range of x and y values.
+#' by a percentage of the respective ranges of x and y values.
 #' @param jitter_x_percent horizontally jitter dots by a percentage of the
 #' range of x values.
 #' @param jitter_y_percent vertically jitter dots by a percentage of the
@@ -89,6 +102,9 @@
 #'   data = mtcars, x_var_name = "wt", y_var_name = "mpg",
 #'   dot_label_var_name = "hp", weight_var_name = "cyl",
 #'   dot_label_size = 7, annotate_stats = TRUE)
+#' scatterplot(
+#' data = mtcars, x_var_name = "wt", y_var_name = "mpg",
+#' color_dots_by = "gear")
 #' }
 #' @export
 #' @import data.table
@@ -100,7 +116,8 @@ scatterplot <- function(
   weight_var_name = NULL,
   alpha = 1,
   annotate_stats = TRUE,
-  annotate_y_pos = 5,
+  annotate_y_pos_rel = 5,
+  annotate_y_pos_abs = NULL,
   annotated_stats_color = "green4",
   annotated_stats_font_size = 6,
   annotated_stats_font_face = "bold",
@@ -111,20 +128,22 @@ scatterplot <- function(
   dot_color = "black",
   x_axis_label = NULL,
   y_axis_label = NULL,
+  x_axis_tick_marks = NULL,
+  y_axis_tick_marks = NULL,
   dot_size = 2,
   dot_label_size = NULL,
   dot_size_range = c(3, 12),
+  jitter_x_y_percent = 0,
   jitter_x_percent = 0,
   jitter_y_percent = 0,
-  jitter_x_y_percent = 0,
   cap_axis_lines = TRUE,
   color_dots_by = NULL,
   png_name = NULL,
   save_as_png = FALSE,
-  width = 16,
+  width = 13,
   height = 9) {
   # bind the vars locally to the function
-  x <- y <- NULL
+  x <- y <- x_y_concatenated <- NULL
   # installed packages
   installed_pkgs <- rownames(utils::installed.packages())
   # check if Package 'ggplot2' is installed
@@ -167,7 +186,8 @@ scatterplot <- function(
   # add the point label or weight column
   if (!is.null(dot_label_var_name)) {
     data.table::set(
-      dt01, j = "dot_labels", value = data[[dot_label_var_name]])
+      dt01, j = "dot_labels", value = as.factor(
+        data[[dot_label_var_name]]))
   }
   if (!is.null(weight_var_name)) {
     data.table::set(
@@ -192,6 +212,18 @@ scatterplot <- function(
   # add the color
   if (!is.null(color_dots_by)) {
     g1 <- g1 + ggplot2::aes(color = dt02$color)
+  }
+  # add jitter and set alpha if any pair of dots overlap
+  dt02[, x_y_concatenated := paste0(x, y)]
+  if (any(duplicated(dt02[, x_y_concatenated]))) {
+    jitter_x_y_percent <- 2
+    alpha <- 0.4
+    kim::pm(
+      "Because at least one pair of dots overlapped, ",
+      "the dots were\njittered vertically and horizontally by ",
+      jitter_x_y_percent, "%",
+      " (of the observed range)\nand were set to be opaque (alpha = ",
+      alpha, ").")
   }
   # add jitter
   if (jitter_x_y_percent > 0) {
@@ -232,20 +264,32 @@ scatterplot <- function(
   } else {
     # add jitter if necessary
     if (jitter_x_percent > 0 | jitter_y_percent > 0) {
-      g1 <- g1 + ggplot2::geom_point(
-        alpha = alpha, size = dot_size, position = pj,
-        color = dot_color)
+      # color dots by group
+      if (!is.null(color_dots_by)) {
+        g1 <- g1 + ggplot2::geom_point(
+          alpha = alpha, size = dot_size, position = pj)
+      } else {
+        g1 <- g1 + ggplot2::geom_point(
+          alpha = alpha, size = dot_size, position = pj,
+          color = dot_color)
+      }
     } else {
-      g1 <- g1 + ggplot2::geom_point(
-        alpha = alpha, size = dot_size,
-        color = dot_color)
+      # color dots by group
+      if (!is.null(color_dots_by)) {
+        g1 <- g1 + ggplot2::geom_point(
+          alpha = alpha, size = dot_size)
+      } else {
+        g1 <- g1 + ggplot2::geom_point(
+          alpha = alpha, size = dot_size,
+          color = dot_color)
+      }
     }
   }
   # scale points
   if (!is.null(weight_var_name)) {
     g1 <- g1 + ggplot2::aes(size = dt02$weight)
     g1 <- g1 + ggplot2::scale_size(
-      range = dot_size_range, guide = FALSE)
+      range = dot_size_range, guide = "none")
   }
   # weighted least squares line
   if (line_of_fit_type %in% c("lm", "loess")) {
@@ -254,17 +298,25 @@ scatterplot <- function(
       g1 <- g1 + ggplot2::geom_smooth(
         formula = y ~ x,
         method = line_of_fit_type,
-        mapping = ggplot2::aes(weight = dt02$weight),
+        mapping = ggplot2::aes(
+          x = dt02$x,
+          y = dt02$y,
+          weight = dt02$weight),
         color = line_of_fit_color,
         linewidth = line_of_fit_thickness,
-        se = ci_for_line_of_fit)
+        se = ci_for_line_of_fit,
+        inherit.aes = FALSE)
     } else {
       g1 <- g1 + ggplot2::geom_smooth(
         formula = y ~ x,
         method = line_of_fit_type,
+        mapping = ggplot2::aes(
+          x = dt02$x,
+          y = dt02$y),
         color = line_of_fit_color,
-        size = line_of_fit_thickness,
-        se = ci_for_line_of_fit)
+        linewidth = line_of_fit_thickness,
+        se = ci_for_line_of_fit,
+        inherit.aes = FALSE)
     }
   }
   # correlation
@@ -304,15 +356,51 @@ scatterplot <- function(
           t06 = weighted_r_text
         )
       )))
-    g1 <- g1 + ggplot2::annotate(
-      geom = "text",
-      x = min(dt02$x) + x_range / 2,
-      y = max(dt02$y) + y_range * annotate_y_pos / 100,
-      color = annotated_stats_color,
-      label = annotation_01, parse = TRUE,
-      hjust = 0.5, vjust = 0.5,
-      size = annotated_stats_font_size,
-      fontface = annotated_stats_font_face)
+    if (!is.null(annotate_y_pos_abs)) {
+      g1 <- g1 + ggplot2::annotate(
+        geom = "text",
+        x = min(dt02$x) + x_range / 2,
+        y = annotate_y_pos_abs,
+        color = annotated_stats_color,
+        label = annotation_01, parse = TRUE,
+        hjust = 0.5, vjust = 0.5,
+        size = annotated_stats_font_size,
+        fontface = annotated_stats_font_face)
+    } else if (is.null(annotate_y_pos_abs)) {
+      g1 <- g1 + ggplot2::annotate(
+        geom = "text",
+        x = min(dt02$x) + x_range / 2,
+        y = max(dt02$y) + y_range * annotate_y_pos_rel / 100,
+        color = annotated_stats_color,
+        label = annotation_01, parse = TRUE,
+        hjust = 0.5, vjust = 0.5,
+        size = annotated_stats_font_size,
+        fontface = annotated_stats_font_face)
+    }
+  }
+  # set x axis tick marks
+  if (is.null(x_axis_tick_marks)) {
+    # set x axis tick marks for common cases
+    sorted_unique_values_in_x <- kim::su(dt02[, x])
+    if (identical(sorted_unique_values_in_x, 1:7)) {
+      g1 <- g1 + scale_x_continuous(
+        breaks = 1:7)
+    }
+  } else {
+    g1 <- g1 + scale_x_continuous(
+      breaks = x_axis_tick_marks)
+  }
+  # set y axis tick marks
+  if (is.null(y_axis_tick_marks)) {
+    # set y axis tick marks for common cases
+    sorted_unique_values_in_y <- kim::su(dt02[, y])
+    if (identical(sorted_unique_values_in_y, 1:7)) {
+      g1 <- g1 + scale_y_continuous(
+        breaks = 1:7)
+    }
+  } else {
+    g1 <- g1 + scale_y_continuous(
+      breaks = y_axis_tick_marks)
   }
   # axis labels
   if (is.null(x_axis_label)) {
