@@ -1,3 +1,18 @@
+# kim 0.5.431
+* Package is being prepared for submission to CRAN
+
+# kim 0.5.425
+* Added the following function(s): factorial_anova_2_way,
+mixed_anova_2_way, ci_of_mean, data_simplify
+* Updated the following function(s) (and other functions that use them): 
+factorial_anova_2_way, se_of_mean, theme_kim, plot_group_means,
+chi_squared_test, multiple_regression, compare_groups, 
+correlation_matrix, t_test_p_value, pretty_round_p_value
+
+# kim 0.5.423
+* Updated the following function(s) (and other functions that use them): 
+floodlight_2_by_continuous, scatterplot, install_all_dependencies
+
 # kim 0.5.422
 * Updated the following function(s) (and other functions that use them): 
 scatterplot, loglinear_analysis, plot_group_means, two_way_anova,

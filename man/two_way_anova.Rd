@@ -2,7 +2,7 @@
 % Please edit documentation in R/two_way_anova.R
 \name{two_way_anova}
 \alias{two_way_anova}
-\title{Two-way ANOVA}
+\title{Two-Way Factorial ANOVA}
 \usage{
 two_way_anova(
   data = NULL,
@@ -155,9 +155,12 @@ using the \code{grid.arrange} function.}
 by default, the output will be \code{"anova_table"}
 }
 \description{
-Conduct a two-way analysis of variance (ANOVA).
+This function is deprecated. Use the function 'factorial_anova_2_way'
+instead.
 }
 \details{
+Conduct a two-way factorial analysis of variance (ANOVA).
+
 The following package(s) must be installed prior to running this function:
 Package 'car' v3.0.9 (or possibly a higher version) by
 Fox et al. (2020),
@@ -170,7 +173,7 @@ Mair & Wilcox (2021),
 \url{https://cran.r-project.org/package=WRS2}
 }
 \examples{
-\donttest{
+\dontrun{
 two_way_anova(
   data = mtcars, dv_name = "mpg", iv_1_name = "vs",
   iv_2_name = "am", iterations = 100)
