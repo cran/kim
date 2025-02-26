@@ -19,6 +19,8 @@
 #' statistics to calculate. For example, entering
 #' \code{stats = c("mean", "median")} will calculate mean and median.
 #' By default, \code{stats = "basic"}
+#' @param welch Should Welch's t-tests be conducted?
+#' By default, \code{welch = TRUE}
 #' @param cohen_d if \code{cohen_d = TRUE}, Cohen's d statistics will be
 #' included in the pairwise comparison data.table.
 #' @param cohen_d_w_ci if \code{cohen_d_w_ci = TRUE},
@@ -39,11 +41,19 @@
 #' If \code{FALSE}, Mann-Whitney tests will not be performed.
 #' @param t_test_stats if \code{t_test_stats = FALSE}, t-test statistic
 #' and degrees of freedom will be excluded in the pairwise comparison
-#' data.table.
-#' @param t_test_df_decimals number of decimals for the degrees of freedom
-#' in t-tests (default = 1)
+#' data.table. (default = TRUE)
 #' @param round_p number of decimal places to which to round
 #' p-values (default = 3)
+#' @param anova Should a one-way ANOVA be conducted and reported?
+#' By default, \code{anova = FALSE}, but when there are more than two
+#' levels in the independent variable, the value will change such tat
+#' \code{anova = TRUE}.
+#' @param round_f number of decimal places to which to round
+#' the f statistic (default = 2)
+#' @param round_t number of decimal places to which to round
+#' the t statistic (default = 2)
+#' @param round_t_test_df number of decimal places to which to round
+#' the degrees of freedom for t tests (default = 2)
 #' @param save_as_png if \code{save_as_png = "all"} or
 #' if \code{save_as_png = TRUE},
 #' the histogram by group, descriptive statistics by group,
@@ -94,6 +104,12 @@
 #' compare_groups(data = iris, iv_name = "Species", dv_name = "Sepal.Length")
 #' compare_groups(data = iris, iv_name = "Species", dv_name = "Sepal.Length",
 #' x_breaks = 4:8)
+#' # Welch's t-test
+#' compare_groups(
+#' data = mtcars, iv_name = "am", dv_name = "hp")
+#' # A Student's t-test
+#' compare_groups(
+#' data = mtcars, iv_name = "am", dv_name = "hp", welch = FALSE)
 #' }
 #' @export
 #' @import data.table
@@ -103,14 +119,18 @@ compare_groups <- function(
   dv_name = NULL,
   sigfigs = 3,
   stats = "basic",
+  welch = TRUE,
   cohen_d = TRUE,
   cohen_d_w_ci = TRUE,
   adjust_p = "holm",
   bonferroni = NULL,
   mann_whitney = TRUE,
   t_test_stats = TRUE,
-  t_test_df_decimals = 1,
   round_p = 3,
+  anova = FALSE,
+  round_f = 2,
+  round_t = 2,
+  round_t_test_df = 2,
   save_as_png = FALSE,
   png_name = NULL,
   xlab = NULL,
@@ -142,13 +162,17 @@ compare_groups <- function(
   output_3 <- kim::t_test_pairwise(
     data = data, iv_name = iv_name, dv_name = dv_name,
     sigfigs = sigfigs,
+    welch = welch,
     cohen_d = cohen_d,
     cohen_d_w_ci = cohen_d_w_ci,
     adjust_p = adjust_p,
     mann_whitney = mann_whitney,
     t_test_stats = t_test_stats,
-    t_test_df_decimals = t_test_df_decimals,
-    round_p = round_p)
+    round_p = round_p,
+    anova = anova,
+    round_f = round_f,
+    round_t = round_t,
+    round_t_test_df = round_t_test_df)
   # print outputs
   output_1
   output_2
