@@ -1,6 +1,6 @@
 Package: kim
 Title: A Toolkit for Behavioral Scientists
-Version: 0.6.1
+Version: 0.6.4
 Authors@R: 
     person(given = "Jin",
            family = "Kim",
@@ -22,13 +22,13 @@ License: GPL-3
 URL: https://github.com/jinkim3/kim, https://jinkim.science
 BugReports: https://github.com/jinkim3/kim/issues
 Imports: data.table, remotes
-Suggests: boot, ggplot2, moments, testthat (>= 3.0.0)
+Suggests: boot, ggplot2, moments, MASS, testthat (>= 3.0.0)
 Encoding: UTF-8
-RoxygenNote: 7.3.0
+RoxygenNote: 7.3.2
 Config/testthat/edition: 3
 NeedsCompilation: no
-Packaged: 2025-02-26 08:04:13 UTC; a
-Author: Jin Kim [aut, cre] (<https://orcid.org/0000-0002-5013-3958>)
+Packaged: 2026-01-12 01:24:17 UTC; a
+Author: Jin Kim [aut, cre] (ORCID: <https://orcid.org/0000-0002-5013-3958>)
 Maintainer: Jin Kim <jinkim@aya.yale.edu>
 Repository: CRAN
-Date/Publication: 2025-02-26 12:40:02 UTC
+Date/Publication: 2026-01-12 13:50:07 UTC

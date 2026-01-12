@@ -34,7 +34,8 @@ these values for the first independent variable}
 these values for the second independent variable}
 
 \item{output}{type of the output. If \code{output_type = "all"},
-the function will return a results summary and print a mosaic plot.
+the function prints a results summary and (optionally) a mosaic plot.
+Other options include \code{"list"} and \code{"results_summary"}.
 (default = "all")}
 
 \item{round_p}{number of decimal places to which to round
@@ -54,7 +55,9 @@ will follow the format suggested by Andy Field (2012)
 Conduct a loglinear analysis
 }
 \examples{
-\donttest{
-loglinear_analysis(data = data.frame(Titanic), "Survived", "Sex", "Age")
+\dontrun{
+if (requireNamespace("MASS", quietly = TRUE)) {
+  loglinear_analysis(data = data.frame(Titanic), "Survived", "Sex", "Age")
+}
 }
 }

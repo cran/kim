@@ -11,7 +11,8 @@
 #' @param iv_2_values restrict all analyses to observations having
 #' these values for the second independent variable
 #' @param output type of the output. If \code{output_type = "all"},
-#' the function will return a results summary and print a mosaic plot.
+#' the function prints a results summary and (optionally) a mosaic plot.
+#' Other options include \code{"list"} and \code{"results_summary"}.
 #' (default = "all")
 #' @param round_p number of decimal places to which to round
 #' p-values (default = 3)
@@ -23,8 +24,10 @@
 #' will follow the format suggested by Andy Field (2012)
 #' (ISBN: 978-1-4462-0045-2, p. 851)
 #' @examples
-#' \donttest{
-#' loglinear_analysis(data = data.frame(Titanic), "Survived", "Sex", "Age")
+#' \dontrun{
+#' if (requireNamespace("MASS", quietly = TRUE)) {
+#'   loglinear_analysis(data = data.frame(Titanic), "Survived", "Sex", "Age")
+#' }
 #' }
 #' @export
 loglinear_analysis <- function(
@@ -41,22 +44,13 @@ loglinear_analysis <- function(
   report_as_field = FALSE) {
   # bind the vars locally to the function
   round_trail_0 <- NULL
-  # installed packages
-  installed_pkgs <- rownames(utils::installed.packages())
-  # check if Package 'MASS' is installed ----
-  if (!"MASS" %in% installed_pkgs) {
-    message(paste0(
-      "This function requires the installation of Package 'MASS'.",
-      "\nTo install Package 'MASS', type ",
-      "'kim::prep(MASS)'",
-      "\n\nAlternatively, to install all packages (dependencies) required ",
-      "for all\nfunctions in Package 'kim', type ",
-      "'kim::install_all_dependencies()'"))
-    return()
-  } else {
-    # proceed if Package 'MASS' is already installed
-    loglm_from_MASS <- utils::getFromNamespace(
-      "loglm", "MASS")
+  # check for required suggested package
+  if (!requireNamespace("MASS", quietly = TRUE)) {
+    message(
+      "This function requires the 'MASS' package.\n",
+      "Install it via install.packages('MASS')."
+    )
+    return(invisible(NULL))
   }
   # check inputs ----
   if (is.null(data)) {
@@ -101,7 +95,7 @@ loglinear_analysis <- function(
   # saturated model ----
   formula_2 <- stats::as.formula(
     paste0("~ ", iv_1_name, " * ", iv_2_name, " * ", dv_name))
-  saturated <- loglm_from_MASS(formula = formula_2, data = ct_1)
+  saturated <- MASS::loglm(formula = formula_2, data = ct_1)
   # summary(saturated)
   # three way interaction ----
   formula_3 <- stats::as.formula(
@@ -109,7 +103,7 @@ loglinear_analysis <- function(
            iv_1_name, ":", iv_2_name, " + ",
            iv_1_name, ":", dv_name, " + ",
            iv_2_name, ":", dv_name))
-  three_way <- loglm_from_MASS(formula = formula_3, data = ct_1)
+  three_way <- MASS::loglm(formula = formula_3, data = ct_1)
   # summary(three_way)
   # mc stands model comparison ----
   mc_1 <- stats::anova(saturated, three_way)
